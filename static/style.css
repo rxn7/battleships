@@ -1,0 +1,26 @@
+:root {
+    background-color: #282828;
+    color: #fff;
+}
+
+.frame {
+    background-color: #323232;
+    border: 3px solid black;
+    border-radius: 20px;
+    padding: 10px;
+    text-align: center;
+    margin: auto auto;
+    width: 200px;
+}
+
+.frame > h2 {
+    border-bottom: 2px solid black;
+}
+
+.frame > button {
+    width: 50%;
+}
+
+#lobby {
+    display: flex;
+}

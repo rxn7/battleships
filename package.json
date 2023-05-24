@@ -1,0 +1,19 @@
+{
+  "name": "battleships",
+  "module": "src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "^0.5.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "baojs": "^0.2.1",
+    "serve-static-bun": "^0.5.2"
+  },
+  "scripts": {
+    "start": "bun run --hot src/index.ts",
+    "build-static": "pushd static ; tsc ; popd"
+  }
+}
