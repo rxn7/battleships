@@ -1,4 +1,5 @@
 static/dist
+src/*.js
 bun.lockb
 
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore

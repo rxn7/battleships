@@ -1,5 +1,6 @@
 import { GameData } from './gameData.js'
 import { Global } from './global.js'
+import { MessageTypes } from './messageTypes.js'
 
 const roomIdInput: HTMLInputElement = document.getElementById('room-id-input') as HTMLInputElement
 const joinRoomButton: HTMLButtonElement = document.getElementById('join-room-button') as HTMLButtonElement
@@ -12,14 +13,29 @@ function connectToRoom(id: number): void {
 
 	Global.connectToRoom(id)
 
-	Global.socket?.addEventListener('open', ev => {
+	Global.socket?.addEventListener('open', (ev: Event) => {
 		joinRoomButton.disabled = true
 		createRoomButton.disabled = true
 		roomIdLabel.textContent = `Connected to room: ${id}`
+
 		gameData = {
 			roomId: id,
-			players: []
+			players: [ ]
 		}
+
+		Global.socket?.send(JSON.stringify({
+			type: MessageTypes.HANDSHAKE
+		}));
+	})
+
+	Global.socket?.addEventListener('message', (ev: MessageEvent) => {
+		const json: any = JSON.parse(ev.data as string)
+		switch(json.type) {
+			case MessageTypes.HANDSHAKE:
+				alert(json.players);
+				break;
+		}
+		console.log(json);
 	})
 
 	Global.socket?.addEventListener('close', ev => {

@@ -2,6 +2,8 @@ import Bao, { Context, IWebSocketData, WebSocketContext } from 'baojs'
 import Room from './room'
 import { ServerWebSocket } from 'bun'
 import { randomUUID } from 'crypto'
+import assert from 'assert'
+import { MessageTypes } from '../static/src/messageTypes'
 
 export default class Game {
 	private rooms: Map<number, Room> = new Map<number, Room>()
@@ -34,7 +36,8 @@ export default class Game {
 				ws.data.uuid = randomUUID()
 				console.log(`New user '${ws.data.uuid}' (${ws.remoteAddress}) joined the room ${roomIdStr}`)
 
-				ws.publish(roomIdStr, `user-joined ${ws.data.uuid}`)
+				// TODO:
+				//ws.publish(roomIdStr, `user-joined ${ws.data.uuid}`)
 				ws.subscribe(roomIdStr)
 
 				room?.connectPlayer(ws)
@@ -45,7 +48,8 @@ export default class Game {
 
 				console.log(`User '${ws.data.uuid}' (${ws.remoteAddress}) left the room ${roomIdStr}`)
 
-				ws.publish(roomIdStr, `user-left ${ws.data.uuid}`)
+				// TODO:
+				// ws.publish(roomIdStr, `user-left ${ws.data.uuid}`)
 				ws.unsubscribe(roomIdStr)
 
 				room?.disconnectPlayers();
@@ -54,7 +58,14 @@ export default class Game {
 
 			message: (ws: ServerWebSocket<IWebSocketData>, msg: string | Uint8Array) => {
 				const [roomId, roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
+				assert(room)
 				const uuid = ws.data.uuid
+				const json: any = JSON.parse(msg as string);
+				switch(json.type) {
+					case MessageTypes.HANDSHAKE:
+						ws.send(JSON.stringify({type: MessageTypes.HANDSHAKE, "players": room.getPlayersUuids()}));
+						break;
+				}
 				console.log(`'${uuid}' (${ws.remoteAddress}): ${msg}`);
 			},
 		})

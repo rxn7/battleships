@@ -18,6 +18,7 @@ export default class Room {
 
 	public isFull = (): boolean => this.players.length >= 2
 	public getStatus = (): RoomStatus => this.status
+	public getPlayersUuids = (): Array<string> => this.players.map(p => p.data.uuid);
 
 	public connectPlayer(ws: ServerWebSocket<IWebSocketData>): void {
 		assert(!this.isFull())
