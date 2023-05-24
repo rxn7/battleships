@@ -60,11 +60,12 @@ function connectToRoom(id: number): void {
 		}
 	})
 
-	Global.socket?.addEventListener('close', ev => {
+	Global.socket?.addEventListener('close', (ev: CloseEvent) => {
 		gameContainer.style.display = 'none'
 		joinRoomButton.disabled = false
 		createRoomButton.disabled = false
 		gameData = null
+		alert(`Connection with the server lost, reason: ${ev.reason}`)
 	})
 }
 

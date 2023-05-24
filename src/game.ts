@@ -4,7 +4,6 @@ import { ServerWebSocket } from 'bun'
 import { randomUUID } from 'crypto'
 import assert from 'assert'
 import { MessageTypes } from '../static/src/messageTypes'
-import { GameData } from '../static/src/gameData'
 
 export default class Game {
 	private rooms: Map<number, Room> = new Map<number, Room>()
@@ -24,6 +23,7 @@ export default class Game {
 		app.ws('/room/:roomId', {
 			upgrade: (ctx: Context) => {
 				const [roomIdStr, room] = getRoomFromCtx(ctx)
+
 				if (!room) return ctx.sendText(`Room ${roomIdStr} doesn't exist`, { status: 404 }).forceSend()
 				if (room.isFull()) return ctx.sendText(`Room ${roomIdStr} is full`, { status: 403 }).forceSend()
 
@@ -56,11 +56,10 @@ export default class Game {
 				const [roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
 
 				console.log(`User '${ws.data.uuid}' (${ws.remoteAddress}) left the room ${roomIdStr}`)
-				ws.close();
 
 				if (!room) return
 
-				room.disconnectPlayers()
+				room.disconnectPlayers('One of the players has disconnected')
 				this.rooms.delete(room.id)
 			},
 

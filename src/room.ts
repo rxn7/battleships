@@ -20,10 +20,10 @@ export default class Room {
 	public getStatus = (): RoomStatus => this.status
 	public getPlayersUuids = (): Array<string> => this.players.map(p => p.data.uuid);
 
-	public disconnectPlayers(): void {
+	public disconnectPlayers(reason: string): void {
 		for (const player of this.players)
 			if (player.readyState !== WebSocket.CLOSED)
-				player.close();
+				player.close(0, reason);
 
 		this.players = []
 	}
