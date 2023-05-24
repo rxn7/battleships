@@ -24,3 +24,7 @@
 #lobby {
     display: flex;
 }
+
+#player-list {
+    list-style: none;
+}

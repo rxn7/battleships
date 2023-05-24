@@ -4,6 +4,7 @@ import { ServerWebSocket } from 'bun'
 import { randomUUID } from 'crypto'
 import assert from 'assert'
 import { MessageTypes } from '../static/src/messageTypes'
+import { GameData } from '../static/src/gameData'
 
 export default class Game {
 	private rooms: Map<number, Room> = new Map<number, Room>()
@@ -14,58 +15,63 @@ export default class Game {
 			return c.sendJson({ room: { id: room.id } })
 		})
 
-		const getRoomFromCtx = (ctx: WebSocketContext): [number, string, Room | undefined] => {
+		const getRoomFromCtx = (ctx: WebSocketContext): [string, Room | undefined] => {
 			const roomIdStr: string = ctx.params.roomId
-			const roomId: number = parseInt(roomIdStr)
-			const room: Room | undefined = this.rooms.get(roomId)
-			return [roomId, roomIdStr, room]
+			const room: Room | undefined = this.rooms.get(parseInt(roomIdStr))
+			return [roomIdStr, room]
 		}
 
 		app.ws('/room/:roomId', {
 			upgrade: (ctx: Context) => {
-				const [roomId, roomIdStr, room] = getRoomFromCtx(ctx)
-				if (!room) return ctx.sendText(`Room ${roomId} doesn't exist`, { status: 404 }).forceSend()
-				if (room.isFull()) return ctx.sendText(`Room ${roomId} is full`, { status: 403 }).forceSend()
+				const [roomIdStr, room] = getRoomFromCtx(ctx)
+				if (!room) return ctx.sendText(`Room ${roomIdStr} doesn't exist`, { status: 404 }).forceSend()
+				if (room.isFull()) return ctx.sendText(`Room ${roomIdStr} is full`, { status: 403 }).forceSend()
 
 				return ctx
 			},
 
 			open: (ws: ServerWebSocket<IWebSocketData>) => {
-				const [roomId, roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
+				const [roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
+				assert(room)
 
 				ws.data.uuid = randomUUID()
+
+				for (const w of room.players)
+					w.send(JSON.stringify({ type: MessageTypes.PLAYER_JOINED, uuid: ws.data.uuid }))
+
+				room.players.push(ws)
+
+				ws.send(JSON.stringify({
+					type: MessageTypes.HANDSHAKE, gameData: {
+						roomId: room.id,
+						players: room.getPlayersUuids(),
+						yourUuid: ws.data.uuid
+					}
+				}))
+
 				console.log(`New user '${ws.data.uuid}' (${ws.remoteAddress}) joined the room ${roomIdStr}`)
-
-				// TODO:
-				//ws.publish(roomIdStr, `user-joined ${ws.data.uuid}`)
-				ws.subscribe(roomIdStr)
-
-				room?.connectPlayer(ws)
 			},
 
 			close: (ws: ServerWebSocket<IWebSocketData>) => {
-				const [roomId, roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
+				const [roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
 
 				console.log(`User '${ws.data.uuid}' (${ws.remoteAddress}) left the room ${roomIdStr}`)
+				ws.close();
 
-				// TODO:
-				// ws.publish(roomIdStr, `user-left ${ws.data.uuid}`)
-				ws.unsubscribe(roomIdStr)
+				if (!room) return
 
-				room?.disconnectPlayers();
-				this.rooms.delete(roomId)
+				room.disconnectPlayers()
+				this.rooms.delete(room.id)
 			},
 
 			message: (ws: ServerWebSocket<IWebSocketData>, msg: string | Uint8Array) => {
-				const [roomId, roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
+				const [roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
 				assert(room)
+				assert(msg)
+
 				const uuid = ws.data.uuid
-				const json: any = JSON.parse(msg as string);
-				switch(json.type) {
-					case MessageTypes.HANDSHAKE:
-						ws.send(JSON.stringify({type: MessageTypes.HANDSHAKE, "players": room.getPlayersUuids()}));
-						break;
-				}
+				const json: any = JSON.parse(msg as string)
+
 				console.log(`'${uuid}' (${ws.remoteAddress}): ${msg}`);
 			},
 		})

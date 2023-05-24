@@ -8,7 +8,7 @@ export enum RoomStatus {
 }
 
 export default class Room {
-	private players: Array<ServerWebSocket<IWebSocketData>>
+	public players: Array<ServerWebSocket<IWebSocketData>>
 	private status: RoomStatus
 
 	constructor(public readonly id: number) {
@@ -20,14 +20,10 @@ export default class Room {
 	public getStatus = (): RoomStatus => this.status
 	public getPlayersUuids = (): Array<string> => this.players.map(p => p.data.uuid);
 
-	public connectPlayer(ws: ServerWebSocket<IWebSocketData>): void {
-		assert(!this.isFull())
-		this.players.push(ws)
-	}
-
 	public disconnectPlayers(): void {
 		for (const player of this.players)
-			player.close();
+			if (player.readyState !== WebSocket.CLOSED)
+				player.close();
 
 		this.players = []
 	}

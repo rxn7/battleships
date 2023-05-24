@@ -6,42 +6,64 @@ const roomIdInput: HTMLInputElement = document.getElementById('room-id-input') a
 const joinRoomButton: HTMLButtonElement = document.getElementById('join-room-button') as HTMLButtonElement
 const createRoomButton: HTMLButtonElement = document.getElementById('create-room-button') as HTMLButtonElement
 const roomIdLabel: HTMLParagraphElement = document.getElementById('room-id-label') as HTMLParagraphElement
+const playerList: HTMLUListElement = document.getElementById('player-list') as HTMLUListElement
+const gameContainer: HTMLDivElement = document.getElementById('game-container') as HTMLDivElement
 let gameData: GameData | null = null
+
+function init() {
+	gameContainer.style.display = 'none'
+}
+
+function setGameData(data: GameData): void {
+	gameContainer.style.display = 'block'
+
+	gameData = data
+	joinRoomButton.disabled = true
+	createRoomButton.disabled = true
+	roomIdLabel.textContent = `Connected to room ${data.roomId}`
+
+	updatePlayerList()
+}
+
+function updatePlayerList(): void {
+	if (!gameData)
+		return
+
+	const elements: Array<HTMLLIElement> = []
+
+	for (const uuid of gameData.players) {
+		const el: HTMLLIElement = document.createElement('li')
+		el.textContent = (uuid === gameData.yourUuid) ? `${uuid} (you)` : uuid
+		elements.push(el)
+	}
+
+	playerList.replaceChildren(...elements)
+}
 
 function connectToRoom(id: number): void {
 	if (Global.isConnected()) return
 
 	Global.connectToRoom(id)
 
-	Global.socket?.addEventListener('open', (ev: Event) => {
-		joinRoomButton.disabled = true
-		createRoomButton.disabled = true
-		roomIdLabel.textContent = `Connected to room: ${id}`
-
-		gameData = {
-			roomId: id,
-			players: [ ]
-		}
-
-		Global.socket?.send(JSON.stringify({
-			type: MessageTypes.HANDSHAKE
-		}));
-	})
-
 	Global.socket?.addEventListener('message', (ev: MessageEvent) => {
 		const json: any = JSON.parse(ev.data as string)
-		switch(json.type) {
+		switch (json.type) {
 			case MessageTypes.HANDSHAKE:
-				alert(json.players);
-				break;
+				setGameData(json.gameData)
+				break
+
+			case MessageTypes.PLAYER_JOINED:
+				const uuid: string = json.uuid
+				gameData?.players.push(uuid)
+				updatePlayerList()
+				break
 		}
-		console.log(json);
 	})
 
 	Global.socket?.addEventListener('close', ev => {
+		gameContainer.style.display = 'none'
 		joinRoomButton.disabled = false
 		createRoomButton.disabled = false
-		roomIdLabel.textContent = `Not connected to any room`
 		gameData = null
 	})
 }
@@ -62,3 +84,5 @@ document.getElementById('create-room-button')?.addEventListener('click', () => {
 			connectToRoom(data?.room?.id)
 		})
 })
+
+init()
