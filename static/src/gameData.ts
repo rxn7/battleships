@@ -1,5 +1,5 @@
 export type GameData = {
-	players: Array<string>,
+	players: Array<string>
 	yourUuid: string
 	roomId: number
 }

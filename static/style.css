@@ -3,6 +3,11 @@
     color: #fff;
 }
 
+h1,h2,h3,h4,p,label,span {
+    pointer-events: none;
+    user-select: none;
+}
+
 .frame {
     background-color: #383838;
     border: 3px solid black;
@@ -50,10 +55,9 @@
 }
 
 .board {
-    border: 3px solid black;
     display: grid;
-    grid-template-columns: repeat(10, 50px);
-    grid-template-rows: repeat(10, 50px);
+    grid-template-columns: repeat(11, 50px);
+    grid-template-rows: repeat(11, 50px);
     justify-content: center;
     align-content: center;
     grid-gap: 0px 0px;
@@ -61,14 +65,32 @@
 }
 
 .board-cell {
-    aspect-ratio: 1;
     width: 100%;
     height: 100%;
-    background-color: #aaa;
+    background-color: #f0f0f0;
     border: 1px solid black;
     cursor: pointer;
 }
 
-.board-cell:hover {
+.board-cell:not([data-status="none"]) {
+    cursor: default;
+}
+
+.board-cell[data-status="hit"] {
+    background-color: green;
+}
+
+.board-cell[data-status="miss"] {
+    background-color: red;
+}
+
+.board-cell[data-status="none"]:hover {
     background-color: #fff !important;
+}
+
+.board-letter-cell {
+    width: 100%;
+    height: 100%;
+    line-height: 50px;
+    vertical-align: middle;
 }
