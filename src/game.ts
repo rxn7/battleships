@@ -1,9 +1,10 @@
-import Bao, {Context, IWebSocketData, WebSocketContext} from 'baojs'
+import Bao, { Context, IWebSocketData, WebSocketContext } from 'baojs'
 import Room from './room'
-import {ServerWebSocket} from 'bun'
-import {randomUUID} from 'crypto'
+import { ServerWebSocket } from 'bun'
+import { randomUUID } from 'crypto'
 import assert from 'assert'
-import {MessageTypes} from '../static/src/messageTypes'
+import { MessageTypes } from '../static/src/messageTypes'
+import { Player } from './player'
 
 export default class Game {
 	private rooms: Map<number, Room> = new Map<number, Room>()
@@ -11,7 +12,7 @@ export default class Game {
 	public setupRoutes(app: Bao): void {
 		app.get('/api/room/create', (c: Context) => {
 			const room: Room = this.createRoom()
-			return c.sendJson({room: {id: room.id}})
+			return c.sendJson({ room: { id: room.id } })
 		})
 
 		const getRoomFromCtx = (ctx: WebSocketContext): [string, Room | undefined] => {
@@ -24,8 +25,8 @@ export default class Game {
 			upgrade: (ctx: Context) => {
 				const [roomIdStr, room] = getRoomFromCtx(ctx)
 
-				if (!room) return ctx.sendText(`Room ${roomIdStr} doesn't exist`, {status: 404}).forceSend()
-				if (room.isFull()) return ctx.sendText(`Room ${roomIdStr} is full`, {status: 403}).forceSend()
+				if (!room) return ctx.sendText(`Room ${roomIdStr} doesn't exist`, { status: 404 }).forceSend()
+				if (room.isFull()) return ctx.sendText(`Room ${roomIdStr} is full`, { status: 403 }).forceSend()
 
 				return ctx
 			},
@@ -34,12 +35,12 @@ export default class Game {
 				const [roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
 				assert(room)
 
-				ws.data.uuid = randomUUID()
+				const newPlayer: Player = new Player(ws, randomUUID())
 
-				for (const w of room.players)
-					w.send(JSON.stringify({type: MessageTypes.PLAYER_JOINED, uuid: ws.data.uuid}))
+				for (const player of room.players)
+					player.socket.send(JSON.stringify({ type: MessageTypes.PLAYER_JOINED, uuid: newPlayer.uuid }))
 
-				room.players.push(ws)
+				room.addPlayer(newPlayer)
 
 				ws.send(
 					JSON.stringify({
@@ -47,12 +48,12 @@ export default class Game {
 						gameData: {
 							roomId: room.id,
 							players: room.getPlayersUuids(),
-							yourUuid: ws.data.uuid,
+							yourUuid: newPlayer.uuid,
 						},
 					})
 				)
 
-				console.log(`New user '${ws.data.uuid}' (${ws.remoteAddress}) joined the room ${roomIdStr}`)
+				console.log(`New user '${newPlayer.uuid}' (${ws.remoteAddress}) joined the room ${roomIdStr}`)
 			},
 
 			close: (ws: ServerWebSocket<IWebSocketData>) => {
@@ -72,9 +73,16 @@ export default class Game {
 				assert(msg)
 
 				const uuid = ws.data.uuid
-				const json: any = JSON.parse(msg as string)
+				const data: any = JSON.parse(msg as string)
 
 				console.log(`'${uuid}' (${ws.remoteAddress}): ${msg}`)
+
+				switch (data.type) {
+					case MessageTypes.FIRE:
+						const cellIdx: number = data.cellIdx
+						room.fire(uuid, cellIdx)
+						break
+				}
 			},
 		})
 	}

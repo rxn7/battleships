@@ -1,13 +1,21 @@
-# battleships
+# Battleships
 
-To install dependencies:
-
+# Setup
 ```bash
 bun install
 ```
 
-To run:
-
+# Run
+To run the server in watch mode: 
 ```bash
-bun run index.ts
+bun run start
 ```
+   
+To watch-compile the frontend scripts: 
+```bash
+bun run watch-static
+```
+
+# To do
+* turns
+* ships

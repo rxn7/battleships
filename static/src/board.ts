@@ -1,44 +1,51 @@
-export namespace Board {
-	const yourBoard: HTMLDivElement = document.getElementById('your-board') as HTMLDivElement
-	const enemyBoard: HTMLDivElement = document.getElementById('enemy-board') as HTMLDivElement
-	const rowLetters: ReadonlyArray<string> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
-	const colLetters: ReadonlyArray<string> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+import { Global } from "./global.js"
+import { MessageTypes } from "./messageTypes.js"
 
-	export function init() {
-		generateBoard(yourBoard)
-		generateBoard(enemyBoard)
+const rowLetters: ReadonlyArray<string> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+const colLetters: ReadonlyArray<string> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+
+export class Board {
+	private container: HTMLDivElement
+	protected cells: Array<HTMLDivElement> = []
+
+	constructor(containerId: string) {
+		this.container = document.getElementById(containerId) as HTMLDivElement
+		this.generateBoard()
 	}
 
-	function generateBoard(board: HTMLDivElement) {
-		board.replaceChildren()
+	public getCell(idx: number): HTMLDivElement | undefined {
+		if (idx < 0 || idx > 100)
+			return undefined
+
+		return this.cells[idx]
+	}
+
+	protected onCellClick(_idx: number): void { }
+
+	private generateBoard(): void {
+		this.container.replaceChildren()
 
 		const createLetterCell = (letter: string): void => {
 			const letterCell: HTMLSpanElement = document.createElement('span')
 			letterCell.textContent = letter
 			letterCell.classList.add('board-letter-cell')
-			board.appendChild(letterCell)
+			this.container.appendChild(letterCell)
 		}
 
 		const createGridCell = (row: number, col: number): void => {
 			const cell: HTMLDivElement = document.createElement('div')
-			cell.setAttribute('data-row', row.toString())
-			cell.setAttribute('data-col', col.toString())
+			const cellIdx: number = row * 10 + col
 
-			const rnd: number = Math.random()
-			if (rnd < 0.3) cell.setAttribute('data-status', 'miss')
-			else if (rnd > 0.7) cell.setAttribute('data-status', 'hit')
-			else cell.setAttribute('data-status', 'none')
-
+			cell.setAttribute('data-status', 'none')
 			cell.classList.add('board-cell')
 
-			cell.addEventListener('click', (ev) => {
-				alert(`${colLetters[col]}${rowLetters[row]}`)
-			})
+			cell.addEventListener('click', () => this.onCellClick(cellIdx))
 
-			board.appendChild(cell)
+			this.cells.push(cell)
+			this.container.appendChild(cell)
 		}
 
-		createLetterCell('')
+		this.container.appendChild(document.createElement('div'))
 
 		for (const letter of colLetters) createLetterCell(letter)
 
@@ -48,5 +55,19 @@ export namespace Board {
 				createGridCell(row, col)
 			}
 		}
+	}
+}
+
+export class EnemyBoard extends Board {
+	protected override onCellClick(idx: number): void {
+		if (this.cells[idx].getAttribute('data-status') != 'none')
+			return
+
+		const message: string = JSON.stringify({
+			type: MessageTypes.FIRE,
+			cellIdx: idx
+		})
+
+		Global.socket?.send(message);
 	}
 }

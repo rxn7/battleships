@@ -1,19 +1,20 @@
-import {Board} from './board.js'
-import {GameData} from './gameData.js'
-import {MessageTypes} from './messageTypes.js'
-import {Lobby} from './lobby.js'
-import {Global} from './global.js'
+import { Board, EnemyBoard } from './board.js'
+import { GameData } from './gameData.js'
+import { MessageTypes } from './messageTypes.js'
+import { Lobby } from './lobby.js'
+import { Global } from './global.js'
 
 export namespace Game {
 	const playerList: HTMLUListElement = document.getElementById('player-list') as HTMLUListElement
 	const gameContainer: HTMLDivElement = document.getElementById('game-container') as HTMLDivElement
 	const roomIdLabel: HTMLParagraphElement = document.getElementById('room-id-label') as HTMLParagraphElement
+	const yourBoard: Board = new Board('your-board')
+	const enemyBoard: EnemyBoard = new EnemyBoard('enemy-board')
 	export let gameData: GameData | null = null
 
 	export function init(): void {
 		Global.wsCloseCallback = onWsClose
 		Global.wsMessageCallback = onWsMessage
-		Board.init()
 		hide()
 	}
 
@@ -37,6 +38,15 @@ export namespace Game {
 				gameData?.players.push(uuid)
 				updatePlayerList()
 				break
+
+			case MessageTypes.FIRE:
+				const targetUuid: string = json.targetUuid
+				const cellIdx: number = json.cellIdx
+
+				const board: Board = targetUuid == gameData?.yourUuid ? yourBoard : enemyBoard
+				board.getCell(cellIdx)?.setAttribute('data-status', 'hit')
+
+				break;
 		}
 	}
 
