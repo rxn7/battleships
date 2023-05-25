@@ -1,47 +1,57 @@
 <!DOCTYPE html>
 <html>
+	<head>
+		<title>Battleships</title>
+		<link rel="stylesheet" href="static/style.css" />
+	</head>
 
-<head>
-    <title>Battleships</title>
-    <link rel="stylesheet" href="static/style.css">
-</head>
+	<body>
+		<h1 style="text-align: center">Battleships</h1>
 
-<body>
-    <h1 style="text-align: center;">Battleships</h1>
+		<div id="container">
+			<div id="lobby">
+				<div class="frame" id="join-room-frame">
+					<h2>Join a room</h2>
+					<div>
+						<label>Room ID:</label>
+						<input size="4" type="number" id="room-id-input" min="0" max="10000" value="0" />
+					</div>
 
-    <div id="container">
-        <div id="lobby">
-            <div class="frame" id="join-room-frame">
-                <h2>Join a room</h2>
-                <div>
-                    <label>Room ID:</label>
-                    <input size="4" type="number" id="room-id-input" min="0" max="10000" value="0">
+					<br />
+					<button id="join-room-button">Join</button>
+				</div>
+
+				<div class="frame" id="create-room-frame">
+					<h2>Create a room</h2>
+					<button id="create-room-button">Create</button>
+				</div>
+			</div>
+
+			<hr />
+
+			<div id="game-container">
+				<p style="text-align: center" id="room-id-label">Not connected to any room</p>
+
+				<div class="frame" id="player-list-container">
+					<p>Players:</p>
+					<ul style="text-align: center" id="player-list"></ul>
+				</div>
+
+				<div id="board-container">
+                    <div>
+                        <h2 style="text-align: center">Your board</h2>
+                        <div class="board" id="your-board"></div>
+                    </div>
+
+                    <div>
+                        <h2 style="text-align: center">Enemy's board</h2>
+                        <div class="board" id="enemy-board"></div>
+                    </div>
                 </div>
+			</div>
+		</div>
 
-                <br>
-                <button id="join-room-button">Join</button>
-            </div>
-
-            <div class="frame" id="create-room-frame">
-                <h2>Create a room</h2>
-                <button id="create-room-button">Create</button>
-            </div>
-        </div>
-
-        <hr>
-    
-        <div id="game-container">
-            <p style="text-align: center;" id="room-id-label">Not connected to any room</p>
-
-            <div class="frame" id="player-list-container">
-                <p>Players:</p>
-                <ul style="text-align: center;" id="player-list"></ul>
-            </div>
-        </div>
-    </div>
-
-    <script type="module" src="static/dist/global.js"></script>
-    <script type="module" src="static/dist/index.js"></script>
-</body>
-
+		<script type="module" src="static/dist/global.js"></script>
+		<script type="module" src="static/dist/index.js"></script>
+	</body>
 </html>

@@ -1,9 +1,9 @@
-import Bao, { Context, IWebSocketData, WebSocketContext } from 'baojs'
+import Bao, {Context, IWebSocketData, WebSocketContext} from 'baojs'
 import Room from './room'
-import { ServerWebSocket } from 'bun'
-import { randomUUID } from 'crypto'
+import {ServerWebSocket} from 'bun'
+import {randomUUID} from 'crypto'
 import assert from 'assert'
-import { MessageTypes } from '../static/src/messageTypes'
+import {MessageTypes} from '../static/src/messageTypes'
 
 export default class Game {
 	private rooms: Map<number, Room> = new Map<number, Room>()
@@ -11,7 +11,7 @@ export default class Game {
 	public setupRoutes(app: Bao): void {
 		app.get('/api/room/create', (c: Context) => {
 			const room: Room = this.createRoom()
-			return c.sendJson({ room: { id: room.id } })
+			return c.sendJson({room: {id: room.id}})
 		})
 
 		const getRoomFromCtx = (ctx: WebSocketContext): [string, Room | undefined] => {
@@ -24,8 +24,8 @@ export default class Game {
 			upgrade: (ctx: Context) => {
 				const [roomIdStr, room] = getRoomFromCtx(ctx)
 
-				if (!room) return ctx.sendText(`Room ${roomIdStr} doesn't exist`, { status: 404 }).forceSend()
-				if (room.isFull()) return ctx.sendText(`Room ${roomIdStr} is full`, { status: 403 }).forceSend()
+				if (!room) return ctx.sendText(`Room ${roomIdStr} doesn't exist`, {status: 404}).forceSend()
+				if (room.isFull()) return ctx.sendText(`Room ${roomIdStr} is full`, {status: 403}).forceSend()
 
 				return ctx
 			},
@@ -37,17 +37,20 @@ export default class Game {
 				ws.data.uuid = randomUUID()
 
 				for (const w of room.players)
-					w.send(JSON.stringify({ type: MessageTypes.PLAYER_JOINED, uuid: ws.data.uuid }))
+					w.send(JSON.stringify({type: MessageTypes.PLAYER_JOINED, uuid: ws.data.uuid}))
 
 				room.players.push(ws)
 
-				ws.send(JSON.stringify({
-					type: MessageTypes.HANDSHAKE, gameData: {
-						roomId: room.id,
-						players: room.getPlayersUuids(),
-						yourUuid: ws.data.uuid
-					}
-				}))
+				ws.send(
+					JSON.stringify({
+						type: MessageTypes.HANDSHAKE,
+						gameData: {
+							roomId: room.id,
+							players: room.getPlayersUuids(),
+							yourUuid: ws.data.uuid,
+						},
+					})
+				)
 
 				console.log(`New user '${ws.data.uuid}' (${ws.remoteAddress}) joined the room ${roomIdStr}`)
 			},
@@ -71,7 +74,7 @@ export default class Game {
 				const uuid = ws.data.uuid
 				const json: any = JSON.parse(msg as string)
 
-				console.log(`'${uuid}' (${ws.remoteAddress}): ${msg}`);
+				console.log(`'${uuid}' (${ws.remoteAddress}): ${msg}`)
 			},
 		})
 	}

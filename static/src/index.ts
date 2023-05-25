@@ -1,6 +1,6 @@
-import { GameData } from './gameData.js'
-import { Global } from './global.js'
-import { MessageTypes } from './messageTypes.js'
+import {GameData} from './gameData.js'
+import {Global} from './global.js'
+import {MessageTypes} from './messageTypes.js'
 
 const roomIdInput: HTMLInputElement = document.getElementById('room-id-input') as HTMLInputElement
 const joinRoomButton: HTMLButtonElement = document.getElementById('join-room-button') as HTMLButtonElement
@@ -8,10 +8,32 @@ const createRoomButton: HTMLButtonElement = document.getElementById('create-room
 const roomIdLabel: HTMLParagraphElement = document.getElementById('room-id-label') as HTMLParagraphElement
 const playerList: HTMLUListElement = document.getElementById('player-list') as HTMLUListElement
 const gameContainer: HTMLDivElement = document.getElementById('game-container') as HTMLDivElement
+const yourBoard: HTMLDivElement = document.getElementById('your-board') as HTMLDivElement
+const enemyBoard: HTMLDivElement = document.getElementById('enemy-board') as HTMLDivElement
 let gameData: GameData | null = null
 
 function init() {
 	gameContainer.style.display = 'none'
+	generateBoard(yourBoard)
+	generateBoard(enemyBoard)
+}
+
+function generateBoard(board: HTMLDivElement) {
+	board.replaceChildren()
+
+	const createGridCell = (row: number, col: number): void => {
+		const cell: HTMLDivElement = document.createElement('div')
+		cell.setAttribute('data-row', row.toString())
+		cell.setAttribute('data-col', col.toString())
+		cell.classList.add('board-cell')
+		board.appendChild(cell)
+	}
+
+	for (let row = 1; row <= 10; ++row) {
+		for (let col = 1; col <= 10; ++col) {
+			createGridCell(row, col)
+		}
+	}
 }
 
 function setGameData(data: GameData): void {
@@ -26,14 +48,13 @@ function setGameData(data: GameData): void {
 }
 
 function updatePlayerList(): void {
-	if (!gameData)
-		return
+	if (!gameData) return
 
 	const elements: Array<HTMLLIElement> = []
 
 	for (const uuid of gameData.players) {
 		const el: HTMLLIElement = document.createElement('li')
-		el.textContent = (uuid === gameData.yourUuid) ? `${uuid} (you)` : uuid
+		el.textContent = uuid === gameData.yourUuid ? `${uuid} (you)` : uuid
 		elements.push(el)
 	}
 
@@ -76,7 +97,7 @@ document.getElementById('join-room-button')?.addEventListener('click', () => {
 document.getElementById('create-room-button')?.addEventListener('click', () => {
 	if (Global.isConnected()) return
 
-	fetch(`/api/room/create`, { method: 'GET' })
+	fetch(`/api/room/create`, {method: 'GET'})
 		.then((res: Response) => res.json())
 		.then((data: any) => {
 			if (!data) throw new Error("Failed to read server's response")
