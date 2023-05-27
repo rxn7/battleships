@@ -1,6 +1,6 @@
 import assert from 'assert'
 import { Player } from './player'
-import { MessageTypes, ServerFireMessage } from '../static/src/messageTypes'
+import { ServerFireMessage } from '../static/src/messages'
 
 export enum RoomStatus {
 	WAITING_FOR_PLAYERS,

@@ -1,6 +1,6 @@
 import { Board, EnemyBoard } from './board.js'
 import { GameData } from './gameData.js'
-import { Message, MessageType, ServerFireMessage, ServerHandshakeMessage, ServerPlayerJoinedMessage } from './messageTypes.js'
+import { Message, MessageType, ServerFireMessage, ServerHandshakeMessage, ServerPlayerJoinedMessage } from './messages.js'
 import { Lobby } from './lobby.js'
 import { Global } from './global.js'
 

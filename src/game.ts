@@ -3,7 +3,7 @@ import Room from './room'
 import { ServerWebSocket } from 'bun'
 import { randomUUID } from 'crypto'
 import assert from 'assert'
-import { ServerHandshakeMessage, ServerPlayerJoinedMessage, Message, MessageType } from '../static/src/messageTypes'
+import { ServerHandshakeMessage, ServerPlayerJoinedMessage, Message, MessageType } from '../static/src/messages'
 import { Player } from './player'
 
 export default class Game {
