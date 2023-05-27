@@ -1,6 +1,6 @@
 import { Board, EnemyBoard } from './board.js'
 import { GameData } from './gameData.js'
-import { MessageTypes } from './messageTypes.js'
+import { Message, MessageType, ServerFireMessage, ServerHandshakeMessage, ServerPlayerJoinedMessage } from './messageTypes.js'
 import { Lobby } from './lobby.js'
 import { Global } from './global.js'
 
@@ -8,6 +8,7 @@ export namespace Game {
 	const playerList: HTMLUListElement = document.getElementById('player-list') as HTMLUListElement
 	const gameContainer: HTMLDivElement = document.getElementById('game-container') as HTMLDivElement
 	const roomIdLabel: HTMLParagraphElement = document.getElementById('room-id-label') as HTMLParagraphElement
+
 	const yourBoard: Board = new Board('your-board')
 	const enemyBoard: EnemyBoard = new EnemyBoard('enemy-board')
 	export let gameData: GameData | null = null
@@ -15,7 +16,6 @@ export namespace Game {
 	export function init(): void {
 		Global.wsCloseCallback = onWsClose
 		Global.wsMessageCallback = onWsMessage
-		hide()
 	}
 
 	export function setGameData(data: GameData): void {
@@ -25,23 +25,24 @@ export namespace Game {
 	}
 
 	export function onWsMessage(ev: MessageEvent): void {
-		const json: any = JSON.parse(ev.data as string)
-		switch (json.type) {
-			case MessageTypes.HANDSHAKE:
-				Lobby.disableButtons(true)
-				setGameData(json.gameData)
+		const msg: Message = JSON.parse(ev.data as string)
+		switch (msg.type) {
+			case MessageType.SERVER_HANDSHAKE:
+				Lobby.hide()
+				setGameData((msg as ServerHandshakeMessage).gameData)
 				show()
 				break
 
-			case MessageTypes.PLAYER_JOINED:
-				const uuid: string = json.uuid
+			case MessageType.SERVER_PLAYER_JOINED:
+				const uuid: string = (msg as ServerPlayerJoinedMessage).uuid
 				gameData?.players.push(uuid)
 				updatePlayerList()
 				break
 
-			case MessageTypes.FIRE:
-				const targetUuid: string = json.targetUuid
-				const cellIdx: number = json.cellIdx
+			case MessageType.SERVER_FIRE:
+				const fireMsg: ServerFireMessage = msg as ServerFireMessage
+				const targetUuid: string = fireMsg.targetUuid
+				const cellIdx: number = fireMsg.cellIdx
 
 				const board: Board = targetUuid == gameData?.yourUuid ? yourBoard : enemyBoard
 				board.getCell(cellIdx)?.setAttribute('data-status', 'hit')
@@ -52,8 +53,9 @@ export namespace Game {
 
 	export function onWsClose(ev: CloseEvent) {
 		hide()
+		Lobby.show()
+
 		gameData = null
-		Lobby.disableButtons(false)
 		alert(`Connection with the server lost, reason: ${ev.reason || 'unknown'}`)
 	}
 
@@ -77,5 +79,11 @@ export namespace Game {
 
 	export function show(): void {
 		gameContainer.style.display = 'block'
+		enemyBoard.clean()
+		yourBoard.clean()
 	}
+
+	document.getElementById('leave-button')?.addEventListener('click', () => {
+		Global.socket?.close(1000, "User left the room");
+	});
 }

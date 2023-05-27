@@ -1,5 +1,5 @@
 import { Global } from "./global.js"
-import { MessageTypes } from "./messageTypes.js"
+import { ClientFireMessage } from "./messageTypes.js"
 
 const rowLetters: ReadonlyArray<string> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 const colLetters: ReadonlyArray<string> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
@@ -11,6 +11,11 @@ export class Board {
 	constructor(containerId: string) {
 		this.container = document.getElementById(containerId) as HTMLDivElement
 		this.generateBoard()
+	}
+
+	public clean(): void {
+		for (const cell of this.cells)
+			cell.setAttribute('data-status', 'none')
 	}
 
 	public getCell(idx: number): HTMLDivElement | undefined {
@@ -63,11 +68,7 @@ export class EnemyBoard extends Board {
 		if (this.cells[idx].getAttribute('data-status') != 'none')
 			return
 
-		const message: string = JSON.stringify({
-			type: MessageTypes.FIRE,
-			cellIdx: idx
-		})
-
-		Global.socket?.send(message);
+		const msg: ClientFireMessage = new ClientFireMessage(idx)
+		Global.socket?.send(JSON.stringify(msg));
 	}
 }

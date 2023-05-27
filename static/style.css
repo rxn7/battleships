@@ -1,4 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani&display=swap');
+
 :root {
+    font-family: Rajdhani;
     background-color: #282828;
     color: #fff;
 }
@@ -6,6 +9,28 @@
 h1,h2,h3,h4,p,label,span {
     pointer-events: none;
     user-select: none;
+}
+
+button {
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: #000;
+    cursor: pointer;
+    border: 3px solid;
+    padding: 0.25em 0.5em;
+    box-shadow: 1px 1px 0px 0px, 2px 2px 0px 0px, 3px 3px 0px 0px, 4px 4px 0px 0px, 5px 5px 0px 0px;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+button:active {
+    box-shadow: 0px 0px 0px 0px;
+    top: 5px;
+    left: 5px;
 }
 
 .frame {

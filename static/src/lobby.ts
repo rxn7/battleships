@@ -1,13 +1,18 @@
-import {Global} from './global.js'
+import { Global } from './global.js'
 
 export namespace Lobby {
+	const lobbyContainer: HTMLDivElement = document.getElementById('lobby') as HTMLDivElement;
 	const roomIdInput: HTMLInputElement = document.getElementById('room-id-input') as HTMLInputElement
-	const joinRoomButton: HTMLButtonElement = document.getElementById('join-room-button') as HTMLButtonElement
-	const createRoomButton: HTMLButtonElement = document.getElementById('create-room-button') as HTMLButtonElement
 
-	export function disableButtons(value: boolean = true) {
-		joinRoomButton.disabled = value
-		createRoomButton.disabled = value
+	export function init() {
+	}
+
+	export function hide() {
+		lobbyContainer.style.display = 'none';
+	}
+
+	export function show() {
+		lobbyContainer.style.display = 'flex';
 	}
 
 	document.getElementById('join-room-button')?.addEventListener('click', () => {
@@ -17,7 +22,7 @@ export namespace Lobby {
 	document.getElementById('create-room-button')?.addEventListener('click', () => {
 		if (Global.isConnected()) return
 
-		fetch(`/api/room/create`, {method: 'GET'})
+		fetch(`/api/room/create`, { method: 'GET' })
 			.then((res: Response) => res.json())
 			.then((data: any) => {
 				if (!data || !data.room) throw new Error("Failed to read server's response")

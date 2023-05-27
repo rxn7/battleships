@@ -3,7 +3,7 @@ import Room from './room'
 import { ServerWebSocket } from 'bun'
 import { randomUUID } from 'crypto'
 import assert from 'assert'
-import { MessageTypes } from '../static/src/messageTypes'
+import { ServerHandshakeMessage, ServerPlayerJoinedMessage, Message, MessageType } from '../static/src/messageTypes'
 import { Player } from './player'
 
 export default class Game {
@@ -37,21 +37,21 @@ export default class Game {
 
 				const newPlayer: Player = new Player(ws, randomUUID())
 
+				const playerJoinedMsgStr = JSON.stringify(new ServerPlayerJoinedMessage(newPlayer.uuid))
 				for (const player of room.players)
-					player.socket.send(JSON.stringify({ type: MessageTypes.PLAYER_JOINED, uuid: newPlayer.uuid }))
+					player.socket.send(playerJoinedMsgStr)
 
 				room.addPlayer(newPlayer)
 
-				ws.send(
-					JSON.stringify({
-						type: MessageTypes.HANDSHAKE,
-						gameData: {
-							roomId: room.id,
-							players: room.getPlayersUuids(),
-							yourUuid: newPlayer.uuid,
-						},
-					})
-				)
+				const msg: ServerHandshakeMessage = new ServerHandshakeMessage(
+					{
+						roomId: room.id,
+						players: room.getPlayersUuids(),
+						yourUuid: newPlayer.uuid,
+					}
+				);
+
+				ws.send(JSON.stringify(msg))
 
 				console.log(`New user '${newPlayer.uuid}' (${ws.remoteAddress}) joined the room ${roomIdStr}`)
 			},
@@ -73,15 +73,14 @@ export default class Game {
 				assert(msg)
 
 				const uuid = ws.data.uuid
-				const data: any = JSON.parse(msg as string)
+				const data: any = JSON.parse(msg as string) as Message
 
 				console.log(`'${uuid}' (${ws.remoteAddress}): ${msg}`)
 
 				switch (data.type) {
-					case MessageTypes.FIRE:
+					case MessageType.CLIENT_FIRE:
 						const cellIdx: number = data.cellIdx
 						room.fire(uuid, cellIdx)
-						break
 				}
 			},
 		})
