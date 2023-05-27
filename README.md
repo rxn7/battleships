@@ -17,5 +17,5 @@ bun run watch-static
 ```
 
 # To do
-* turns
+* state machine 
 * ships
