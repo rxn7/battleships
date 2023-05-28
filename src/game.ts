@@ -54,15 +54,15 @@ export default class Game {
 
 				room.addPlayer(newPlayer)
 
-				const msg: ServerHandshakeMessage = new ServerHandshakeMessage(
+				ws.send(JSON.stringify(new ServerHandshakeMessage(
 					{
 						roomId: room.id,
 						players: room.getPlayersUuids(),
 						yourUuid: newPlayer.uuid,
+						status: room.getStatus()
 					}
-				);
+				)))
 
-				ws.send(JSON.stringify(msg))
 				console.log(`New user ${Game.wsToString(newPlayer.socket)} joined the room ${roomIdStr}`)
 			},
 
@@ -88,7 +88,7 @@ export default class Game {
 				console.log(`'${uuid}' (${ws.remoteAddress}): ${msg}`)
 
 				switch (data.type) {
-					case MessageType.CLIENT_FIRE:
+					case MessageType.ClientFire:
 						const cellIdx: number = data.cellIdx
 						room.fire(uuid, cellIdx)
 				}

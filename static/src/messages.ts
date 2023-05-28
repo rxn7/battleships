@@ -1,32 +1,34 @@
-import { GameData } from "./gameData"
+import { GameData } from "./gameData.js"
+import { RoomStatus } from "./roomStatus.js"
 
 export enum MessageType {
-	SERVER_HANDSHAKE,
-	SERVER_PLAYER_JOINED,
-	SERVER_FIRE,
-	CLIENT_FIRE,
+	ServerHandshake,
+	ServerPlayerJoined,
+	ServerRoomStatusChanged,
+	ServerFire,
+	ClientFire,
 }
 
-export interface Message {
-	type: MessageType
+export class Message {
+	protected constructor(public readonly type: MessageType) { }
 }
 
-export class ServerHandshakeMessage implements Message {
-	public readonly type: MessageType = MessageType.SERVER_HANDSHAKE
-	constructor(public readonly gameData: GameData) { }
+export class ServerHandshakeMessage extends Message {
+	constructor(public readonly gameData: GameData) { super(MessageType.ServerHandshake) }
 }
 
-export class ServerFireMessage implements Message {
-	public readonly type: MessageType = MessageType.SERVER_FIRE
-	constructor(public readonly shooterUuid: string, public readonly targetUuid: string, public readonly cellIdx: number) { }
+export class ServerFireMessage extends Message {
+	constructor(public readonly shooterUuid: string, public readonly targetUuid: string, public readonly cellIdx: number) { super(MessageType.ServerFire) }
 }
 
-export class ServerPlayerJoinedMessage implements Message {
-	public readonly type: MessageType = MessageType.SERVER_PLAYER_JOINED
-	constructor(public readonly uuid: string) { }
+export class ServerPlayerJoinedMessage extends Message {
+	constructor(public readonly uuid: string) { super(MessageType.ServerPlayerJoined) }
 }
 
-export class ClientFireMessage implements Message {
-	public readonly type: MessageType = MessageType.CLIENT_FIRE
-	constructor(public readonly cellIdx: number) { }
+export class ServerRoomStatusChangedMessage extends Message {
+	constructor(public readonly status: RoomStatus) { super(MessageType.ServerRoomStatusChanged) }
+}
+
+export class ClientFireMessage extends Message {
+	constructor(public readonly cellIdx: number) { super(MessageType.ClientFire) }
 }
