@@ -6,16 +6,26 @@ const colLetters: ReadonlyArray<string> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H
 
 export class Board {
 	private container: HTMLDivElement
+	private element: HTMLDivElement
 	protected cells: Array<HTMLDivElement> = []
 
 	constructor(containerId: string) {
-		this.container = document.getElementById(containerId) as HTMLDivElement
+		this.element = document.getElementById(containerId) as HTMLDivElement
+		this.container = this.element.parentElement as HTMLDivElement
 		this.generateBoard()
 	}
 
 	public clean(): void {
 		for (const cell of this.cells)
 			cell.setAttribute('data-status', 'none')
+	}
+
+	public hide(): void {
+		this.container.style.display = 'none'
+	}
+
+	public show(): void {
+		this.container.style.display = 'block'
 	}
 
 	public getCell(idx: number): HTMLDivElement | undefined {
@@ -28,13 +38,13 @@ export class Board {
 	protected onCellClick(_idx: number): void { }
 
 	private generateBoard(): void {
-		this.container.replaceChildren()
+		this.element.replaceChildren()
 
 		const createLetterCell = (letter: string): void => {
 			const letterCell: HTMLSpanElement = document.createElement('span')
 			letterCell.textContent = letter
 			letterCell.classList.add('board-letter-cell')
-			this.container.appendChild(letterCell)
+			this.element.appendChild(letterCell)
 		}
 
 		const createGridCell = (row: number, col: number): void => {
@@ -47,10 +57,10 @@ export class Board {
 			cell.addEventListener('click', () => this.onCellClick(cellIdx))
 
 			this.cells.push(cell)
-			this.container.appendChild(cell)
+			this.element.appendChild(cell)
 		}
 
-		this.container.appendChild(document.createElement('div'))
+		this.element.appendChild(document.createElement('div'))
 
 		for (const letter of colLetters) createLetterCell(letter)
 

@@ -13,7 +13,7 @@
     "serve-static-bun": "^0.5.2"
   },
   "scripts": {
-    "start": "tsc --project ./static ; bun run --hot src/index.ts",
+    "start": "tsc --project ./static ; bun run --watch src/index.ts",
     "watch-static": "tsc --watch --project ./static"
   }
 }

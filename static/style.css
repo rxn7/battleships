@@ -4,6 +4,24 @@
     font-family: Rajdhani;
     background-color: #282828;
     color: #fff;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
 }
 
 h1,h2,h3,h4,p,label,span {
@@ -53,6 +71,9 @@ button:active {
 
 #lobby {
     display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
 }
 
 #player-list {

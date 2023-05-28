@@ -8,8 +8,8 @@
 	<body>
 		<h1 style="text-align: center; font-size: 2em">Battleships</h1>
 
-		<div id="container">
-			<div id="lobby">
+		<main>
+			<section id="lobby">
 				<div class="frame" id="join-room-frame">
 					<h2>Join a room</h2>
 					<div>
@@ -25,11 +25,9 @@
 					<h2>Create a room</h2>
 					<button id="create-room-button">Create</button>
 				</div>
-			</div>
+			</section>
 
-			<hr />
-
-			<div id="game-container">
+			<section id="game-container">
 				<div style="text-align: center">
 					<button id="leave-button">Leave</button>
 				</div>
@@ -52,8 +50,8 @@
                         <div class="board" id="enemy-board"></div>
                     </div>
                 </div>
-			</div>
-		</div>
+			</section>
+		</main>
 
 		<script type="module" src="static/dist/global.js"></script>
 		<script type="module" src="static/dist/index.js"></script>

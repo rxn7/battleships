@@ -14,6 +14,7 @@ export namespace Game {
 	export let gameData: GameData | null = null
 
 	export function init(): void {
+		enemyBoard.hide()
 		Global.wsCloseCallback = onWsClose
 		Global.wsMessageCallback = onWsMessage
 	}
@@ -31,12 +32,19 @@ export namespace Game {
 				Lobby.hide()
 				setGameData((msg as ServerHandshakeMessage).gameData)
 				show()
+
+				if (gameData === null) break // make typescript happy
+
+				if (gameData.players.length > 1)
+					enemyBoard.show()
+
 				break
 
 			case MessageType.SERVER_PLAYER_JOINED:
 				const uuid: string = (msg as ServerPlayerJoinedMessage).uuid
 				gameData?.players.push(uuid)
 				updatePlayerList()
+				enemyBoard.show()
 				break
 
 			case MessageType.SERVER_FIRE:
@@ -52,11 +60,10 @@ export namespace Game {
 	}
 
 	export function onWsClose(ev: CloseEvent) {
-		hide()
+		Game.hide()
 		Lobby.show()
-
 		gameData = null
-		alert(`Connection with the server lost, reason: ${ev.reason || 'unknown'}`)
+		alert(`Connection closed, ${ev.reason ? `reason: ${ev.reason}` : `code: ${ev.code}`}`)
 	}
 
 	export function updatePlayerList(): void {

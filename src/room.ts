@@ -8,7 +8,7 @@ export enum RoomStatus {
 }
 
 export default class Room {
-	public players: Array<Player> = []
+	public players: Array<Player>
 	private status: RoomStatus = RoomStatus.WAITING_FOR_PLAYERS
 	private turnPlayerUuid: string
 

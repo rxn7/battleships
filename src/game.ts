@@ -9,6 +9,10 @@ import { Player } from './player'
 export default class Game {
 	private rooms: Map<number, Room> = new Map<number, Room>()
 
+	public static wsToString(ws: ServerWebSocket<IWebSocketData>): string {
+		return `'${ws.data.uuid}'(${ws.remoteAddress})`
+	}
+
 	public setupRoutes(app: Bao): void {
 		app.get('/api/room/create', (c: Context) => {
 			const room: Room = this.createRoom()
@@ -25,15 +29,22 @@ export default class Game {
 			upgrade: (ctx: Context) => {
 				const [roomIdStr, room] = getRoomFromCtx(ctx)
 
-				if (!room) return ctx.sendText(`Room ${roomIdStr} doesn't exist`, { status: 404 }).forceSend()
-				if (room.isFull()) return ctx.sendText(`Room ${roomIdStr} is full`, { status: 403 }).forceSend()
+				if (!room) {
+					console.log(`User tried to join room that doesn't exist: ${roomIdStr}`)
+					return ctx.sendText(`Room ${roomIdStr} doesn't exist`, { status: 404 }).forceSend()
+				}
+
+				if (room.isFull()) {
+					console.log(`User tried to join room that is full: ${roomIdStr}`)
+					return ctx.sendText(`Room ${roomIdStr} is full`, { status: 403 }).forceSend()
+				}
 
 				return ctx
 			},
 
 			open: (ws: ServerWebSocket<IWebSocketData>) => {
 				const [roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
-				assert(room)
+				assert(room, `Cannot find room with id ${room}`)
 
 				const newPlayer: Player = new Player(ws, randomUUID())
 
@@ -52,16 +63,14 @@ export default class Game {
 				);
 
 				ws.send(JSON.stringify(msg))
-
-				console.log(`New user '${newPlayer.uuid}' (${ws.remoteAddress}) joined the room ${roomIdStr}`)
+				console.log(`New user ${Game.wsToString(newPlayer.socket)} joined the room ${roomIdStr}`)
 			},
 
 			close: (ws: ServerWebSocket<IWebSocketData>) => {
 				const [roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
 
+				assert(room, `User'${ws.data.uuid}' (${ws.remoteAddress}) tried to leave room that doesnt exist`)
 				console.log(`User '${ws.data.uuid}' (${ws.remoteAddress}) left the room ${roomIdStr}`)
-
-				if (!room) return
 
 				room.disconnectPlayers('One of the players has disconnected')
 				this.rooms.delete(room.id)
@@ -69,7 +78,8 @@ export default class Game {
 
 			message: (ws: ServerWebSocket<IWebSocketData>, msg: string | Uint8Array) => {
 				const [roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
-				assert(room)
+
+				assert(room, "Received message from user in unknown room ''")
 				assert(msg)
 
 				const uuid = ws.data.uuid
