@@ -20,13 +20,8 @@ export class Board {
 			cell.setAttribute('data-status', 'none')
 	}
 
-	public hide(): void {
-		this.container.style.display = 'none'
-	}
-
-	public show(): void {
-		this.container.style.display = 'block'
-	}
+	public hide = (): void => { this.container.style.display = 'none' }
+	public show = (): void => { this.container.style.display = 'block' }
 
 	public getCell(idx: number): HTMLDivElement | undefined {
 		if (idx < 0 || idx > 100)

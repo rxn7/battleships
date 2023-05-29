@@ -28,7 +28,6 @@ export namespace Lobby {
 				if (!data || !data.room) throw new Error("Failed to read server's response")
 				const roomId: number = data.room.id
 
-				alert(`Created a room of id: ${roomId}`)
 				Global.connectToRoom(roomId)
 			})
 	})
