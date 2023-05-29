@@ -1,5 +1,5 @@
-import {Global} from './global.js'
-import {ClientFireMessage} from './messages.js'
+import { Global } from './global.js'
+import { ClientFireMessage } from './messages.js'
 
 const rowLetters: ReadonlyArray<string> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 const colLetters: ReadonlyArray<string> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
@@ -32,7 +32,7 @@ export class Board {
 		return this.cells[idx]
 	}
 
-	protected onCellClick(_idx: number): void {}
+	protected onCellClick(_idx: number): void { }
 
 	private generateBoard(): void {
 		this.element.replaceChildren()
