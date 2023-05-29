@@ -1,5 +1,5 @@
-import { Game } from './game.js'
-import { Lobby } from './lobby.js'
+import {Game} from './game.js'
+import {Lobby} from './lobby.js'
 
 Game.init()
 Game.hide()

@@ -1,5 +1,5 @@
-import { Global } from "./global.js"
-import { ClientFireMessage } from "./messages.js"
+import {Global} from './global.js'
+import {ClientFireMessage} from './messages.js'
 
 const rowLetters: ReadonlyArray<string> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 const colLetters: ReadonlyArray<string> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
@@ -16,21 +16,23 @@ export class Board {
 	}
 
 	public clean(): void {
-		for (const cell of this.cells)
-			cell.setAttribute('data-status', 'none')
+		for (const cell of this.cells) cell.setAttribute('data-status', 'none')
 	}
 
-	public hide = (): void => { this.container.style.display = 'none' }
-	public show = (): void => { this.container.style.display = 'block' }
+	public hide = (): void => {
+		this.container.style.display = 'none'
+	}
+	public show = (): void => {
+		this.container.style.display = 'block'
+	}
 
 	public getCell(idx: number): HTMLDivElement | undefined {
-		if (idx < 0 || idx > 100)
-			return undefined
+		if (idx < 0 || idx > 100) return undefined
 
 		return this.cells[idx]
 	}
 
-	protected onCellClick(_idx: number): void { }
+	protected onCellClick(_idx: number): void {}
 
 	private generateBoard(): void {
 		this.element.replaceChildren()
@@ -70,10 +72,9 @@ export class Board {
 
 export class EnemyBoard extends Board {
 	protected override onCellClick(idx: number): void {
-		if (this.cells[idx].getAttribute('data-status') != 'none')
-			return
+		if (this.cells[idx].getAttribute('data-status') != 'none') return
 
 		const msg: ClientFireMessage = new ClientFireMessage(idx)
-		Global.socket?.send(JSON.stringify(msg));
+		Global.socket?.send(JSON.stringify(msg))
 	}
 }

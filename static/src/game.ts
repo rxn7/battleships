@@ -1,7 +1,14 @@
 import { Board, EnemyBoard } from './board.js'
 import { RoomStatus } from './roomStatus.js'
 import { GameData } from './gameData.js'
-import { Message, MessageType, ServerFireMessage, ServerHandshakeMessage, ServerPlayerJoinedMessage, ServerRoomStatusChangedMessage } from './messages.js'
+import {
+	Message,
+	MessageType,
+	ServerFireMessage,
+	ServerHandshakeMessage,
+	ServerPlayerJoinedMessage,
+	ServerRoomStatusChangedMessage,
+} from './messages.js'
 import { Lobby } from './lobby.js'
 import { Global } from './global.js'
 
@@ -23,7 +30,7 @@ export namespace Game {
 
 	export function updateRoomStatusLabel(): void {
 		if (!gameData) return
-		roomStatusLabel.textContent = `Status: ${RoomStatus[gameData.status].replace(/([A-Z]+)*([A-Z][a-z])/g, "$1 $2")}` // Regex to convert CamelCase to Title Case
+		roomStatusLabel.textContent = `Status: ${RoomStatus[gameData.status].replace(/([A-Z]+)*([A-Z][a-z])/g, '$1 $2')}` // Regex to convert CamelCase to Title Case
 	}
 
 	export function setGameData(data: GameData): void {
@@ -32,13 +39,12 @@ export namespace Game {
 		updateRoomStatusLabel()
 		updatePlayerList()
 
-		if (data.status === RoomStatus.Playing)
-			enemyBoard.show()
+		if (data.status === RoomStatus.Playing) enemyBoard.show()
 	}
 
 	export function onWsMessage(ev: MessageEvent): void {
 		const rawMsg: Message = JSON.parse(ev.data as string)
-		console.log(rawMsg);
+		console.log(rawMsg)
 		switch (rawMsg.type) {
 			case MessageType.ServerHandshake: {
 				setGameData((rawMsg as ServerHandshakeMessage).gameData)
@@ -67,15 +73,14 @@ export namespace Game {
 			}
 
 			case MessageType.ServerRoomStatusChanged: {
-				if (!gameData) return;
+				if (!gameData) return
 
 				const msg: ServerRoomStatusChangedMessage = rawMsg as ServerRoomStatusChangedMessage
 
 				gameData.status = msg.status
 				updateRoomStatusLabel()
 
-				if (msg.status === RoomStatus.Playing)
-					enemyBoard.show()
+				if (msg.status === RoomStatus.Playing) enemyBoard.show()
 
 				break
 			}
@@ -114,6 +119,6 @@ export namespace Game {
 	}
 
 	document.getElementById('leave-button')?.addEventListener('click', () => {
-		Global.socket?.close(1000, "User left the room");
-	});
+		Global.socket?.close(1000, 'User left the room')
+	})
 }

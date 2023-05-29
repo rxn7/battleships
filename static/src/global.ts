@@ -10,4 +10,9 @@ export namespace Global {
 		socket?.addEventListener('close', wsCloseCallback)
 		socket?.addEventListener('message', wsMessageCallback)
 	}
+
+	export function closeSocket(): void {
+		socket?.close()
+		socket = null
+	}
 }

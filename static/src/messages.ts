@@ -1,5 +1,5 @@
-import { GameData } from "./gameData.js"
-import { RoomStatus } from "./roomStatus.js"
+import { GameData } from './gameData.js'
+import { RoomStatus } from './roomStatus.js'
 
 export enum MessageType {
 	ServerHandshake,
@@ -14,21 +14,31 @@ export class Message {
 }
 
 export class ServerHandshakeMessage extends Message {
-	constructor(public readonly gameData: GameData) { super(MessageType.ServerHandshake) }
+	constructor(public readonly gameData: GameData) {
+		super(MessageType.ServerHandshake)
+	}
 }
 
 export class ServerFireMessage extends Message {
-	constructor(public readonly shooterUuid: string, public readonly targetUuid: string, public readonly cellIdx: number) { super(MessageType.ServerFire) }
+	constructor(public readonly shooterUuid: string, public readonly targetUuid: string, public readonly cellIdx: number) {
+		super(MessageType.ServerFire)
+	}
 }
 
 export class ServerPlayerJoinedMessage extends Message {
-	constructor(public readonly uuid: string) { super(MessageType.ServerPlayerJoined) }
+	constructor(public readonly uuid: string) {
+		super(MessageType.ServerPlayerJoined)
+	}
 }
 
 export class ServerRoomStatusChangedMessage extends Message {
-	constructor(public readonly status: RoomStatus) { super(MessageType.ServerRoomStatusChanged) }
+	constructor(public readonly status: RoomStatus) {
+		super(MessageType.ServerRoomStatusChanged)
+	}
 }
 
 export class ClientFireMessage extends Message {
-	constructor(public readonly cellIdx: number) { super(MessageType.ClientFire) }
+	constructor(public readonly cellIdx: number) {
+		super(MessageType.ClientFire)
+	}
 }

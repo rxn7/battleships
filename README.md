@@ -5,10 +5,12 @@
 bun install
 ```
 
+# Build
+
 # Run
 To run the server in watch mode: 
 ```bash
-bun run start
+bun run watch
 ```
    
 To watch-compile the frontend scripts: 
