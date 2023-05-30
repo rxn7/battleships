@@ -11,9 +11,10 @@ import {
 } from './messages.js'
 import { Lobby } from './lobby.js'
 import { Global } from './global.js'
+import { CellStatus } from './cellStatus.js'
+import { Audio } from './audio.js'
 
 export namespace Game {
-	const playerList: HTMLUListElement = document.getElementById('player-list') as HTMLUListElement
 	const gameContainer: HTMLDivElement = document.getElementById('game-container') as HTMLDivElement
 	const roomIdLabel: HTMLParagraphElement = document.getElementById('room-id-label') as HTMLParagraphElement
 	const roomStatusLabel: HTMLParagraphElement = document.getElementById('room-status-label') as HTMLParagraphElement
@@ -37,7 +38,6 @@ export namespace Game {
 		gameData = data
 		roomIdLabel.textContent = `Connected to room ${data.roomId}`
 		updateRoomStatusLabel()
-		updatePlayerList()
 
 		if (data.status === RoomStatus.Playing) enemyBoard.show()
 	}
@@ -57,7 +57,6 @@ export namespace Game {
 			case MessageType.ServerPlayerJoined: {
 				const uuid: string = (rawMsg as ServerPlayerJoinedMessage).uuid
 				gameData?.players.push(uuid)
-				updatePlayerList()
 				break
 			}
 
@@ -65,9 +64,25 @@ export namespace Game {
 				const msg: ServerFireMessage = rawMsg as ServerFireMessage
 				const targetUuid: string = msg.targetUuid
 				const cellIdx: number = msg.cellIdx
+				const cellStatus: CellStatus = msg.cellStatus
 
-				const board: Board = targetUuid == gameData?.yourUuid ? yourBoard : enemyBoard
-				board.getCell(cellIdx)?.setAttribute('data-status', 'hit')
+				let shotBoard: Board;
+				let nextTurnBoard: Board;
+
+				if (targetUuid == gameData?.yourUuid) {
+					shotBoard = yourBoard;
+					nextTurnBoard = enemyBoard
+				} else {
+					shotBoard = enemyBoard;
+					nextTurnBoard = yourBoard
+				}
+
+				shotBoard.getCell(cellIdx)?.setAttribute('data-status', cellStatus)
+
+				Audio.playSound(Audio.Sound.Miss)
+
+				shotBoard.container.style.opacity = '50%'
+				nextTurnBoard.container.style.opacity = '100%'
 
 				break
 			}
@@ -94,28 +109,14 @@ export namespace Game {
 		alert(`Connection closed, ${ev.reason ? `reason: ${ev.reason}` : `code: ${ev.code}`}`)
 	}
 
-	export function updatePlayerList(): void {
-		if (!gameData) return
-
-		const elements: Array<HTMLLIElement> = []
-
-		for (const uuid of gameData.players) {
-			const el: HTMLLIElement = document.createElement('li')
-			el.textContent = uuid === gameData.yourUuid ? `${uuid} (you)` : uuid
-			elements.push(el)
-		}
-
-		playerList.replaceChildren(...elements)
-	}
-
 	export function hide(): void {
 		gameContainer.style.display = 'none'
 	}
 
 	export function show(): void {
 		gameContainer.style.display = 'block'
-		enemyBoard.clean()
-		yourBoard.clean()
+		enemyBoard.reset()
+		yourBoard.reset()
 	}
 
 	document.getElementById('leave-button')?.addEventListener('click', () => {

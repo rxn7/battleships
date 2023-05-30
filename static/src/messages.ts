@@ -1,3 +1,4 @@
+import { CellStatus } from './cellStatus'
 import { GameData } from './gameData.js'
 import { RoomStatus } from './roomStatus.js'
 
@@ -20,7 +21,7 @@ export class ServerHandshakeMessage extends Message {
 }
 
 export class ServerFireMessage extends Message {
-	constructor(public readonly shooterUuid: string, public readonly targetUuid: string, public readonly cellIdx: number) {
+	constructor(public readonly shooterUuid: string, public readonly targetUuid: string, public readonly cellIdx: number, public readonly cellStatus: CellStatus) {
 		super(MessageType.ServerFire)
 	}
 }

@@ -5,6 +5,7 @@
     background-color: #282828;
     color: #fff;
     box-sizing: border-box;
+    --cell-background-color: #f0f0f0;
 }
 
 body {
@@ -113,8 +114,11 @@ button:active {
 .board-cell {
     width: 100%;
     height: 100%;
-    background-color: #f0f0f0;
     border: 1px solid black;
+    background-color: var(--cell-background-color);
+}
+
+#enemy-board > .board-cell[data-status="none"]:hover {
     cursor: pointer;
 }
 
@@ -122,16 +126,20 @@ button:active {
     cursor: default;
 }
 
+.board-cell[data-status="sunk"] {
+    background:
+        linear-gradient(45deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0) 43%,#fff 45%,#fff 55%,rgba(0,0,0,0) 57%,rgba(0,0,0,0) 100%),
+        linear-gradient(135deg, #f00 0%,#f00 43%,#fff 45%,#fff 55%,#f00 57%,#f00 100%) !important;
+}
+
 .board-cell[data-status="hit"] {
-    background-color: green;
+    background:
+        linear-gradient(45deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0) 45%,#f00 47%,#f00 55%,rgba(0,0,0,0) 57%,rgba(0,0,0,0) 100%),
+        linear-gradient(135deg, var(--cell-background-color) 0%, var(--cell-background-color) 43%,#f00 45%,#f00 55%,var(--cell-background-color) 57%,var(--cell-background-color) 100%) !important;
 }
 
 .board-cell[data-status="miss"] {
-    background-color: red;
-}
-
-.board-cell[data-status="none"]:hover {
-    background-color: #fff !important;
+    background: radial-gradient(ellipse at center, #111 0%, #111 47%,#fff,55%,#fff);
 }
 
 .board-letter-cell {

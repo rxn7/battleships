@@ -1,10 +1,10 @@
-import Bao, {Context, IWebSocketData, WebSocketContext} from 'baojs'
+import Bao, { Context, IWebSocketData, WebSocketContext } from 'baojs'
 import Room from './room'
-import {ServerWebSocket} from 'bun'
-import {randomUUID} from 'crypto'
+import { ServerWebSocket } from 'bun'
+import { randomUUID } from 'crypto'
 import assert from 'assert'
-import {ServerHandshakeMessage, ServerPlayerJoinedMessage, Message, MessageType} from '../static/src/messages'
-import {Player} from './player'
+import { ServerHandshakeMessage, ServerPlayerJoinedMessage, Message, MessageType } from '../static/src/messages'
+import { Player } from './player'
 
 export default class Game {
 	private rooms: Map<number, Room> = new Map<number, Room>()
@@ -14,7 +14,7 @@ export default class Game {
 	public setupRoutes(app: Bao): void {
 		app.get('/api/room/create', (c: Context) => {
 			const room: Room = this.createRoom()
-			return c.sendJson({room: {id: room.id}})
+			return c.sendJson({ room: { id: room.id } })
 		})
 
 		const getRoomFromCtx = (ctx: WebSocketContext): [string, Room | undefined] => {
@@ -29,12 +29,12 @@ export default class Game {
 
 				if (!room) {
 					console.log(`User tried to join room that doesn't exist: ${roomIdStr}`)
-					return ctx.sendText(`Room ${roomIdStr} doesn't exist`, {status: 404}).forceSend()
+					return ctx.sendText(`Room ${roomIdStr} doesn't exist`, { status: 404 }).forceSend()
 				}
 
 				if (room.isFull()) {
 					console.log(`User tried to join room that is full: ${roomIdStr}`)
-					return ctx.sendText(`Room ${roomIdStr} is full`, {status: 403}).forceSend()
+					return ctx.sendText(`Room ${roomIdStr} is full`, { status: 403 }).forceSend()
 				}
 
 				return ctx

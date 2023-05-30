@@ -5,7 +5,7 @@ const rowLetters: ReadonlyArray<string> = ['1', '2', '3', '4', '5', '6', '7', '8
 const colLetters: ReadonlyArray<string> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
 export class Board {
-	private container: HTMLDivElement
+	public container: HTMLDivElement
 	private element: HTMLDivElement
 	protected cells: Array<HTMLDivElement> = []
 
@@ -15,8 +15,9 @@ export class Board {
 		this.generateBoard()
 	}
 
-	public clean(): void {
+	public reset(): void {
 		for (const cell of this.cells) cell.setAttribute('data-status', 'none')
+		this.container.style.opacity = '100%'
 	}
 
 	public hide = (): void => {

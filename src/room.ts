@@ -1,7 +1,8 @@
 import assert from 'assert'
-import {Player} from './player'
-import {ServerFireMessage, ServerRoomStatusChangedMessage} from '../static/src/messages'
-import {RoomStatus} from '../static/src/roomStatus'
+import { Player } from './player'
+import { ServerFireMessage, ServerRoomStatusChangedMessage } from '../static/src/messages'
+import { RoomStatus } from '../static/src/roomStatus'
+import { CellStatus } from '../static/src/cellStatus'
 
 export default class Room {
 	public players: Array<Player>
@@ -52,7 +53,7 @@ export default class Room {
 		target.hitMap[cellIdx] = true
 		// TODO: Check if a ship was hit
 
-		const message: string = JSON.stringify(new ServerFireMessage(playerUuid, target.uuid, cellIdx))
+		const message: string = JSON.stringify(new ServerFireMessage(playerUuid, target.uuid, cellIdx, Math.random() < 0.5 ? 'miss' : 'hit'))
 
 		for (const player of this.players) player.socket.send(message)
 
