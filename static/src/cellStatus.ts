@@ -1,1 +1,1 @@
-export type CellStatus = 'none' | 'miss' | 'hit' | 'sunk' | 'ship'
+export type CellStatus = 'empty' | 'ship' | 'miss' | 'hit' | 'sunk'

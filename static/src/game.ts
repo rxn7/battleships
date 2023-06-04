@@ -1,6 +1,6 @@
-import {Board, EnemyBoard} from './board.js'
-import {RoomStatus} from './roomStatus.js'
-import {GameData} from './gameData.js'
+import { Board, EnemyBoard } from './board.js'
+import { RoomStatus } from './roomStatus.js'
+import { GameData } from './gameData.js'
 import {
 	Message,
 	MessageType,
@@ -9,10 +9,9 @@ import {
 	ServerPlayerJoinedMessage,
 	ServerRoomStatusChangedMessage,
 } from './messages.js'
-import {Lobby} from './lobby.js'
-import {Global} from './global.js'
-import {CellStatus} from './cellStatus.js'
-import {Audio} from './audio.js'
+import { Lobby } from './lobby.js'
+import { Global } from './global.js'
+import { Audio } from './audio.js'
 
 export namespace Game {
 	const gameContainer: HTMLDivElement = document.getElementById('game-container') as HTMLDivElement
@@ -40,7 +39,7 @@ export namespace Game {
 		roomIdLabel.textContent = `Connected to room ${data.roomId}`
 		updateRoomStatusLabel()
 
-		yourBoard.reset(gameData.cells)
+		yourBoard.reset(gameData.yourShipsCellsIdxs)
 
 		if (data.status === RoomStatus.Playing) enemyBoard.show()
 	}
@@ -66,7 +65,7 @@ export namespace Game {
 				boards.set(gameData?.yourUuid as string, yourBoard)
 
 				enemyBoard.reset()
-				yourBoard.reset(gameData?.cells)
+				yourBoard.reset(gameData?.yourShipsCellsIdxs)
 
 				if (gameData?.players.length == 2) {
 					enemyBoard.show()
@@ -94,7 +93,9 @@ export namespace Game {
 
 				highlightEnemyBoard(msg.targetUuid)
 
-				boards.get(msg.targetUuid)?.getCell(msg.cellIdx)?.setAttribute('data-status', msg.cellStatus)
+				const board: Board = boards.get(msg.targetUuid) as Board
+
+				for (const [idx, status] of msg.changes) board.getCell(idx)?.setAttribute('data-status', status)
 
 				Audio.playSound(Audio.Sound.Miss)
 

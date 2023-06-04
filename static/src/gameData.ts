@@ -1,10 +1,9 @@
-import {CellStatus} from './cellStatus'
-import {RoomStatus} from './roomStatus'
+import { RoomStatus } from './roomStatus'
 
 export type GameData = {
 	players: Array<string>
 	yourUuid: string
+	yourShipsCellsIdxs: ReadonlyArray<number>
 	roomId: number
 	status: RoomStatus
-	cells: ReadonlyArray<CellStatus>
 }

@@ -1,9 +1,9 @@
 import assert from 'assert'
-import {Player} from './player'
-import {ServerFireMessage, ServerRoomStatusChangedMessage} from '../static/src/messages'
-import {RoomStatus} from '../static/src/roomStatus'
-import {GridCell} from './grid'
-import {CellStatus} from '../static/src/cellStatus'
+import { Player } from './player'
+import { ServerFireMessage, ServerRoomStatusChangedMessage } from '../static/src/messages'
+import { RoomStatus } from '../static/src/roomStatus'
+import { GridCell } from './grid'
+import { CellStatus } from '../static/src/cellStatus'
 
 export default class Room {
 	public players: Array<Player>
@@ -52,9 +52,22 @@ export default class Room {
 		const cell: GridCell = target.grid.cells[cellIdx]
 		assert(!cell.isHit, 'Cell is already hit')
 
+		let changes: Array<[number, CellStatus]> = []
+
 		cell.isHit = true
-		const newCellStatus: CellStatus = cell.isShip ? 'hit' : 'miss'
-		const message: string = JSON.stringify(new ServerFireMessage(playerUuid, target.uuid, cellIdx, newCellStatus))
+		if (cell.ship) {
+			if (cell.ship.cells.every(c => c.isHit))
+				cell.ship.cells.forEach(c => {
+					changes.push([c.idx, 'sunk'])
+				})
+			else {
+				changes.push([cell.idx, 'hit'])
+			}
+		} else {
+			changes.push([cell.idx, 'miss'])
+		}
+
+		const message: string = JSON.stringify(new ServerFireMessage(playerUuid, target.uuid, changes))
 
 		for (const player of this.players) player.socket.send(message)
 		this.turnPlayerUuid = this.players.find((p) => p.uuid !== this.turnPlayerUuid)?.uuid || this.turnPlayerUuid

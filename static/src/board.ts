@@ -1,6 +1,5 @@
-import {CellStatus} from './cellStatus'
-import {Global} from './global.js'
-import {ClientFireMessage} from './messages.js'
+import { Global } from './global.js'
+import { ClientFireMessage } from './messages.js'
 
 const rowLetters: ReadonlyArray<string> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 const colLetters: ReadonlyArray<string> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
@@ -17,14 +16,13 @@ export class Board {
 		this.generateBoard()
 	}
 
-	public reset(cells?: ReadonlyArray<CellStatus>): void {
+	public reset(cells?: ReadonlyArray<number>): void {
 		this.setOpacity(100)
 
-		if (!cells) {
-			for (let i = 0; i < 100; ++i) this.cells[i].setAttribute('data-status', 'none')
-		} else {
-			for (let i = 0; i < 100; ++i) this.cells[i].setAttribute('data-status', cells[i])
-		}
+		for (const cell of this.cells) cell.setAttribute('data-status', 'none')
+
+		if (cells)
+			for (const cell of cells) this.cells[cell].setAttribute('data-status', 'ship')
 	}
 
 	public setOpacity = (op: number): void => {
@@ -45,7 +43,7 @@ export class Board {
 		return this.cells[idx]
 	}
 
-	protected onCellClick(_idx: number): void {}
+	protected onCellClick(_idx: number): void { }
 
 	private generateBoard(): void {
 		this.element.replaceChildren()

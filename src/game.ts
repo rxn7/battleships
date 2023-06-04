@@ -1,12 +1,10 @@
-import Bao, {Context, IWebSocketData, WebSocketContext} from 'baojs'
+import Bao, { Context, IWebSocketData, WebSocketContext } from 'baojs'
 import Room from './room'
-import {ServerWebSocket} from 'bun'
-import {randomUUID} from 'crypto'
+import { ServerWebSocket } from 'bun'
+import { randomUUID } from 'crypto'
 import assert from 'assert'
-import {ServerHandshakeMessage, ServerPlayerJoinedMessage, Message, MessageType} from '../static/src/messages'
-import {Player} from './player'
-import {GridCell} from './grid'
-import {CellStatus} from '../static/src/cellStatus'
+import { ServerHandshakeMessage, ServerPlayerJoinedMessage, Message, MessageType } from '../static/src/messages'
+import { Player } from './player'
 
 export default class Game {
 	private rooms: Map<number, Room> = new Map<number, Room>()
@@ -16,7 +14,7 @@ export default class Game {
 	public setupRoutes(app: Bao): void {
 		app.get('/api/room/create', (c: Context) => {
 			const room: Room = this.createRoom()
-			return c.sendJson({room: {id: room.id}})
+			return c.sendJson({ room: { id: room.id } })
 		})
 
 		const getRoomFromCtx = (ctx: WebSocketContext): [string, Room | undefined] => {
@@ -31,11 +29,11 @@ export default class Game {
 
 				if (!room) {
 					console.log(`User tried to join room that doesn't exist: ${roomIdStr}`)
-					return ctx.sendText(`Room ${roomIdStr} doesn't exist`, {status: 404}).forceSend()
+					return ctx.sendText(`Room ${roomIdStr} doesn't exist`, { status: 404 }).forceSend()
 				}
 				if (room.isFull()) {
 					console.log(`User tried to join room that is full: ${roomIdStr}`)
-					return ctx.sendText(`Room ${roomIdStr} is full`, {status: 403}).forceSend()
+					return ctx.sendText(`Room ${roomIdStr} is full`, { status: 403 }).forceSend()
 				}
 
 				return ctx
@@ -52,24 +50,22 @@ export default class Game {
 
 				room.addPlayer(newPlayer)
 
+				const shipsCellsIdxs: Array<number> = []
+				newPlayer.grid.ships.forEach(s => {
+					s.cells.forEach(c => {
+						shipsCellsIdxs.push(c.idx)
+					})
+				})
+
 				ws.send(
 					JSON.stringify(
 						new ServerHandshakeMessage(
 							{
+								yourUuid: newPlayer.uuid,
+								yourShipsCellsIdxs: shipsCellsIdxs,
 								roomId: room.id,
 								players: room.getPlayersUuids(),
-								yourUuid: newPlayer.uuid,
 								status: room.getStatus(),
-								cells: newPlayer.grid.cells.map((c: GridCell): CellStatus => {
-									if (c.isShip) {
-										if (c.isHit) return 'hit'
-										return 'ship'
-									}
-
-									if (c.isHit) return 'miss'
-
-									return 'none'
-								}),
 							},
 							room.turnPlayerUuid
 						)
@@ -91,7 +87,7 @@ export default class Game {
 			},
 
 			message: (ws: ServerWebSocket<IWebSocketData>, msg: string | Uint8Array) => {
-				const [roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
+				const [, room] = getRoomFromCtx(ws.data.ctx)
 
 				assert(room, "Received message from user in unknown room ''")
 				assert(msg)
