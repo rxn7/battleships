@@ -97,7 +97,16 @@ export namespace Game {
 
 				for (const [idx, status] of msg.changes) board.getCell(idx)?.setAttribute('data-status', status)
 
-				Audio.playSound(Audio.Sound.Miss)
+				switch (msg.changes[0][1]) {
+					case 'sunk':
+					case 'hit':
+						Audio.playSound(Audio.Sound.Hit)
+						break
+
+					case 'miss':
+						Audio.playSound(Audio.Sound.Miss)
+						break
+				}
 
 				break
 			}

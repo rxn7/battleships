@@ -1,10 +1,12 @@
 export namespace Audio {
 	export enum Sound {
 		Miss,
+		Hit,
 	}
 
 	const sounds: Map<Sound, HTMLAudioElement> = new Map<Sound, HTMLAudioElement>([
 		[Sound.Miss, createAudio('static/audio/miss.mp3')],
+		[Sound.Hit, createAudio('static/audio/hit.ogg')],
 	])
 
 	function createAudio(src: string): HTMLAudioElement {
