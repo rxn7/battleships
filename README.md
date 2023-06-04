@@ -1,4 +1,6 @@
 # Battleships
+![battleships](docs/lobby.png)
+![battleships](docs/game2.png)
 
 # Setup
 ```bash
