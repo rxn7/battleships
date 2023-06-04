@@ -24,6 +24,7 @@ export namespace Game {
 	export let gameData: GameData | null = null
 
 	export function init(): void {
+		yourBoard.show()
 		enemyBoard.hide()
 		Global.wsCloseCallback = onWsClose
 		Global.wsMessageCallback = onWsMessage
@@ -38,6 +39,8 @@ export namespace Game {
 		gameData = data
 		roomIdLabel.textContent = `Connected to room ${data.roomId}`
 		updateRoomStatusLabel()
+
+		yourBoard.reset(gameData.cells)
 
 		if (data.status === RoomStatus.Playing) enemyBoard.show()
 	}
@@ -116,7 +119,7 @@ export namespace Game {
 	export function show(): void {
 		gameContainer.style.display = 'block'
 		enemyBoard.reset()
-		yourBoard.reset()
+		yourBoard.reset(gameData?.cells)
 	}
 
 	document.getElementById('leave-button')?.addEventListener('click', () => {

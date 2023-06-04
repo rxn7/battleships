@@ -2,6 +2,7 @@ import assert from 'assert'
 import { Player } from './player'
 import { ServerFireMessage, ServerRoomStatusChangedMessage } from '../static/src/messages'
 import { RoomStatus } from '../static/src/roomStatus'
+import { GridCell } from './grid'
 import { CellStatus } from '../static/src/cellStatus'
 
 export default class Room {
@@ -46,17 +47,16 @@ export default class Room {
 		assert(cellIdx >= 0 && cellIdx < 100, 'Cell is out of bounds')
 
 		const target: Player = this.players.find((p) => p.uuid != playerUuid) as Player
-
 		assert(target !== undefined, 'Cannot find fire target')
-		assert(!target.hitMap[cellIdx], 'Cell is already hit') // TODO: Send an error message
 
-		target.hitMap[cellIdx] = true
-		// TODO: Check if a ship was hit
+		const cell: GridCell = target.grid.cells[cellIdx];
+		assert(!cell.isHit, 'Cell is already hit')
 
-		const message: string = JSON.stringify(new ServerFireMessage(playerUuid, target.uuid, cellIdx, Math.random() < 0.5 ? 'miss' : 'hit'))
+		cell.isHit = true
+		const newCellStatus: CellStatus = cell.isShip ? 'hit' : 'miss'
+		const message: string = JSON.stringify(new ServerFireMessage(playerUuid, target.uuid, cellIdx, newCellStatus))
 
 		for (const player of this.players) player.socket.send(message)
-
 		this.turnPlayerUuid = this.players.find((p) => p.uuid !== this.turnPlayerUuid)?.uuid || this.turnPlayerUuid
 	}
 }

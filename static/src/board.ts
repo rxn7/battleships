@@ -1,8 +1,10 @@
+import { CellStatus } from './cellStatus'
 import { Global } from './global.js'
 import { ClientFireMessage } from './messages.js'
 
 const rowLetters: ReadonlyArray<string> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 const colLetters: ReadonlyArray<string> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+export const shipSizes: ReadonlyArray<number> = [5, 4, 3, 3, 2]
 
 export class Board {
 	public container: HTMLDivElement
@@ -15,9 +17,18 @@ export class Board {
 		this.generateBoard()
 	}
 
-	public reset(): void {
-		for (const cell of this.cells) cell.setAttribute('data-status', 'none')
+	public reset(cells: Array<CellStatus> | undefined = undefined): void {
 		this.container.style.opacity = '100%'
+
+		if (cells === undefined)
+			for (let i = 0; i < 100; ++i)
+				this.cells[i].setAttribute('data-status', 'none')
+		else {
+			for (let i = 0; i < 100; ++i) {
+				this.cells[i].setAttribute('data-status', cells[i])
+				console.log(this.cells[i].getAttribute('data-status'))
+			}
+		}
 	}
 
 	public hide = (): void => {
@@ -28,7 +39,7 @@ export class Board {
 	}
 
 	public getCell(idx: number): HTMLDivElement | undefined {
-		if (idx < 0 || idx > 100) return undefined
+		if (idx < 0 || idx > 99) return undefined
 
 		return this.cells[idx]
 	}

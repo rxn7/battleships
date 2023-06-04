@@ -5,6 +5,8 @@ import { randomUUID } from 'crypto'
 import assert from 'assert'
 import { ServerHandshakeMessage, ServerPlayerJoinedMessage, Message, MessageType } from '../static/src/messages'
 import { Player } from './player'
+import { GridCell } from './grid'
+import { CellStatus } from '../static/src/cellStatus'
 
 export default class Game {
 	private rooms: Map<number, Room> = new Map<number, Room>()
@@ -58,6 +60,18 @@ export default class Game {
 							players: room.getPlayersUuids(),
 							yourUuid: newPlayer.uuid,
 							status: room.getStatus(),
+							cells: newPlayer.grid.cells.map((c: GridCell): CellStatus => {
+								if (c.isShip) {
+									if (c.isHit)
+										return 'hit'
+									return 'ship'
+								}
+
+								if (c.isHit)
+									return 'miss'
+
+								return 'none'
+							})
 						})
 					)
 				)
