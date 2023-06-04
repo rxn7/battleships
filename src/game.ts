@@ -90,6 +90,8 @@ export default class Game {
 					})
 				}
 
+				room.players = room.players.filter(p => p.uuid !== ws.data.uuid)
+
 				if (room.players.length == 0) {
 					console.log(`Room with id: ${roomIdStr} deleted`)
 					this.rooms.delete(room?.id)
