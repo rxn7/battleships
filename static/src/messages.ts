@@ -24,6 +24,7 @@ export class ServerFireMessage extends Message {
 	constructor(
 		public readonly shooterUuid: string,
 		public readonly targetUuid: string,
+		public readonly nextTurnPlayerUuid: string,
 		public readonly changes: Array<[number, CellStatus]>
 	) {
 		super(MessageType.ServerFire)

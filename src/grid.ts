@@ -2,7 +2,10 @@ import { ShipRotation, shipSizes } from '../static/src/ship'
 import { Point, copyPoint, idxFromPoint } from '../static/src/point'
 import { GridCell } from './gridCell'
 
-export type Ship = { cells: Array<GridCell> }
+export class Ship {
+	public cells: Array<GridCell> = []
+	public isSunk = (): boolean => this.cells.every((c: GridCell) => c.isHit)
+}
 
 export class Grid {
 	public cells: Array<GridCell> = []
@@ -77,7 +80,7 @@ export class Grid {
 
 		point = copyPoint(pivot)
 
-		const ship: Ship = { cells: [] }
+		const ship: Ship = new Ship()
 
 		for (let i = 0; i < size; ++i) {
 			const [cell] = iteratePoint()

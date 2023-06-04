@@ -7,8 +7,9 @@ import { GridCell } from './gridCell'
 
 export default class Room {
 	public players: Array<Player>
-	private status: RoomStatus
 	public turnPlayerUuid: string
+	public hasEnded: boolean = false
+	private status: RoomStatus
 
 	constructor(public readonly id: number) {
 		this.status = RoomStatus.WaitingForPlayers
@@ -27,8 +28,7 @@ export default class Room {
 	}
 
 	public disconnectPlayers(reason: string): void {
-		for (const player of this.players) if (player.socket.readyState !== WebSocket.CLOSED) player.socket.close(1000, reason)
-
+		for (const player of this.players) player.socket.close(1000, reason)
 		this.players = []
 	}
 
@@ -41,12 +41,23 @@ export default class Room {
 		if (this.players.length == 2) this.changeStatus(RoomStatus.Playing)
 	}
 
-	public fire(playerUuid: string, cellIdx: number): void {
+	private endGame(winner: string): void {
+		this.hasEnded = true
+		for (const player of this.players) {
+			if (player.uuid === winner)
+				player.socket.close(1000, `You have won!`)
+			else
+				player.socket.close(1000, `You have lost!`)
+		}
+		this.players = []
+	}
+
+	public fire(shooterUuid: string, cellIdx: number): void {
 		assert(this.status === RoomStatus.Playing, 'The game has not started yet')
-		assert(playerUuid === this.turnPlayerUuid, 'Invalid player tried to fire!')
+		assert(shooterUuid === this.turnPlayerUuid, 'Invalid player tried to fire!')
 		assert(cellIdx >= 0 && cellIdx < 100, 'Cell is out of bounds')
 
-		const target: Player = this.players.find((p) => p.uuid != playerUuid) as Player
+		const target: Player = this.players.find((p) => p.uuid != shooterUuid) as Player
 		assert(target !== undefined, 'Cannot find fire target')
 
 		const cell: GridCell = target.grid.cells[cellIdx]
@@ -56,23 +67,35 @@ export default class Room {
 
 		cell.isHit = true
 		if (cell.ship) {
-			if (cell.ship.cells.every((c: GridCell) => c.isHit)) {
+			this.turnPlayerUuid = shooterUuid
+			if (cell.ship.isSunk()) {
 				cell.ship.cells.forEach((c: GridCell) => {
+					c.isHit = true
 					changes.push([c.idx, 'sunk'])
-					for (const neighbor of c.getNeighbors())
-						if (!neighbor.ship)
+					for (const neighbor of c.getNeighbors()) {
+						if (!neighbor.ship) {
+							c.isHit = true
 							changes.push([neighbor.idx, 'miss'])
+						}
+					}
 				})
 			} else {
 				changes.push([cell.idx, 'hit'])
 			}
 		} else {
+			this.turnPlayerUuid = target.uuid
 			changes.push([cell.idx, 'miss'])
 		}
 
-		const message: string = JSON.stringify(new ServerFireMessage(playerUuid, target.uuid, changes))
+		const message: string = JSON.stringify(new ServerFireMessage(shooterUuid, target.uuid, this.turnPlayerUuid, changes))
 
 		for (const player of this.players) player.socket.send(message)
-		this.turnPlayerUuid = this.players.find((p) => p.uuid !== this.turnPlayerUuid)?.uuid || this.turnPlayerUuid
+
+		this.players.forEach(p => {
+			if (p.grid.ships.every(s => s.isSunk())) {
+				const winner: Player | undefined = this.players.find(_p => _p.uuid !== p.uuid)
+				this.endGame(winner?.uuid || '?')
+			}
+		})
 	}
 }

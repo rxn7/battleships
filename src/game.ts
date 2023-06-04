@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto'
 import assert from 'assert'
 import { ServerHandshakeMessage, ServerPlayerJoinedMessage, Message, MessageType } from '../static/src/messages'
 import { Player } from './player'
+import { RoomStatus } from '../static/src/roomStatus'
 
 export default class Game {
 	private rooms: Map<number, Room> = new Map<number, Room>()
@@ -77,13 +78,22 @@ export default class Game {
 
 			close: (ws: ServerWebSocket<IWebSocketData>) => {
 				const [roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
-
-				assert(room, `User'${ws.data.uuid}' (${ws.remoteAddress}) tried to leave room that doesnt exist`)
 				console.log(`User '${ws.data.uuid}' (${ws.remoteAddress}) left the room ${roomIdStr}`)
-				console.log(`Room with id: ${roomIdStr} deleted`)
 
-				room.disconnectPlayers('One of the players has disconnected')
-				this.rooms.delete(room.id)
+				if (!room)
+					return
+
+				if (!room.hasEnded) {
+					room.players.forEach(p => {
+						if (p.uuid !== ws.data.uuid && p.socket.readyState !== WebSocket.CLOSED && p.socket.readyState !== WebSocket.CLOSING)
+							p.socket.close(1000, 'Your enemy has disconnected')
+					})
+				}
+
+				if (room.players.length == 0) {
+					console.log(`Room with id: ${roomIdStr} deleted`)
+					this.rooms.delete(room?.id)
+				}
 			},
 
 			message: (ws: ServerWebSocket<IWebSocketData>, msg: string | Uint8Array) => {
@@ -95,7 +105,7 @@ export default class Game {
 				const uuid = ws.data.uuid
 				const data: any = JSON.parse(msg as string) as Message
 
-				console.log(`'${uuid}' (${ws.remoteAddress}): ${msg}`)
+				console.log(`'${uuid} ' (${ws.remoteAddress}): ${msg}`)
 
 				switch (data.type) {
 					case MessageType.ClientFire:

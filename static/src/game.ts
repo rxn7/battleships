@@ -91,10 +91,9 @@ export namespace Game {
 			case MessageType.ServerFire: {
 				const msg: ServerFireMessage = rawMsg as ServerFireMessage
 
-				highlightEnemyBoard(msg.targetUuid)
+				highlightEnemyBoard(msg.nextTurnPlayerUuid)
 
 				const board: Board = boards.get(msg.targetUuid) as Board
-
 				for (const [idx, status] of msg.changes) board.getCell(idx)?.setAttribute('data-status', status)
 
 				switch (msg.changes[0][1]) {
