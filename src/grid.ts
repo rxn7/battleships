@@ -1,27 +1,8 @@
 import { ShipRotation, shipSizes } from '../static/src/ship'
-import { Point, copyPoint, idxFromPoint, isPointInBounds } from '../static/src/point'
+import { Point, copyPoint, idxFromPoint } from '../static/src/point'
+import { GridCell } from './gridCell'
 
-export type Ship = {
-	cells: Array<GridCell>
-}
-
-export class GridCell {
-	public isHit: boolean = false
-	public ship?: Ship = undefined
-
-	constructor(public readonly idx: number) { }
-
-	public toString(): string {
-		if (this.ship) {
-			if (this.isHit) return 'X'
-			return 'S'
-		}
-
-		if (this.isHit) return '∘'
-
-		return '#'
-	}
-}
+export type Ship = { cells: Array<GridCell> }
 
 export class Grid {
 	public cells: Array<GridCell> = []
@@ -29,7 +10,7 @@ export class Grid {
 
 	constructor() {
 		for (let i = 0; i < 100; ++i)
-			this.cells.push(new GridCell(i))
+			this.cells.push(new GridCell(this, i))
 
 		for (const size of shipSizes) {
 			let ship: Ship | undefined = undefined
@@ -38,6 +19,7 @@ export class Grid {
 				const rotation: number = Math.random() > 0.5 ? ShipRotation.Vertical : ShipRotation.Horizontal
 				ship = this.tryPlaceShip(size, point, rotation)
 			} while (ship === undefined)
+
 			this.ships.push(ship)
 		}
 	}
@@ -53,23 +35,7 @@ export class Grid {
 		return output
 	}
 
-	public getCellAt = (point: Point): GridCell | undefined => this.cells[idxFromPoint(point)]
-
-	public cellHasAnyNeighboringShips(p: Point): boolean {
-		for (let xo = -1; xo < 2; ++xo) {
-			for (let yo = -1; yo < 2; ++yo) {
-				if (xo === 0 && yo === 0) continue
-
-				const testPoint: Point = { x: p.x + xo, y: p.y + yo }
-				if (!isPointInBounds(testPoint)) continue
-
-				if (this.getCellAt(testPoint)?.ship)
-					return true
-			}
-		}
-
-		return false
-	}
+	public getCellAt = (point: Point): GridCell => this.cells[idxFromPoint(point)]
 
 	private tryPlaceShip(
 		size: number,
@@ -100,8 +66,8 @@ export class Grid {
 					break
 			}
 
-			const cell: GridCell | undefined = this.getCellAt(point)
-			return [cell, cell !== undefined && !cell.ship && !this.cellHasAnyNeighboringShips(point)]
+			const cell: GridCell = this.getCellAt(point)
+			return [cell, !cell.ship && !cell.hasAnyNeighboringShips()]
 		}
 
 		for (let i = 0; i < size; ++i) {

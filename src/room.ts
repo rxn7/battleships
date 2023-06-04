@@ -2,8 +2,8 @@ import assert from 'assert'
 import { Player } from './player'
 import { ServerFireMessage, ServerRoomStatusChangedMessage } from '../static/src/messages'
 import { RoomStatus } from '../static/src/roomStatus'
-import { GridCell } from './grid'
 import { CellStatus } from '../static/src/cellStatus'
+import { GridCell } from './gridCell'
 
 export default class Room {
 	public players: Array<Player>
@@ -56,11 +56,14 @@ export default class Room {
 
 		cell.isHit = true
 		if (cell.ship) {
-			if (cell.ship.cells.every(c => c.isHit))
-				cell.ship.cells.forEach(c => {
+			if (cell.ship.cells.every((c: GridCell) => c.isHit)) {
+				cell.ship.cells.forEach((c: GridCell) => {
 					changes.push([c.idx, 'sunk'])
+					for (const neighbor of c.getNeighbors())
+						if (!neighbor.ship)
+							changes.push([neighbor.idx, 'miss'])
 				})
-			else {
+			} else {
 				changes.push([cell.idx, 'hit'])
 			}
 		} else {
