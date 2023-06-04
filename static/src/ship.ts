@@ -1,6 +1,6 @@
 export enum ShipRotation {
 	Horizontal,
-	Vertical
+	Vertical,
 }
 
 export type Ship = {
@@ -9,4 +9,4 @@ export type Ship = {
 	position: number
 }
 
-export const shipSizes: ReadonlyArray<number> = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+export const shipSizes: ReadonlyArray<number> = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]

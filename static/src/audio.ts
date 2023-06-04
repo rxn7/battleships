@@ -1,5 +1,7 @@
 export namespace Audio {
-	export enum Sound { Miss }
+	export enum Sound {
+		Miss,
+	}
 
 	const sounds: Map<Sound, HTMLAudioElement> = new Map<Sound, HTMLAudioElement>([
 		[Sound.Miss, createAudio('static/audio/miss.mp3')],
@@ -17,7 +19,7 @@ export namespace Audio {
 		const audio: HTMLAudioElement = sounds.get(sound)?.cloneNode() as HTMLAudioElement
 		audio.addEventListener('ended', () => {
 			audio.srcObject = null
-		});
+		})
 		audio.play()
 	}
 }

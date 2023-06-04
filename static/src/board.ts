@@ -1,6 +1,6 @@
-import { CellStatus } from './cellStatus'
-import { Global } from './global.js'
-import { ClientFireMessage } from './messages.js'
+import {CellStatus} from './cellStatus'
+import {Global} from './global.js'
+import {ClientFireMessage} from './messages.js'
 
 const rowLetters: ReadonlyArray<string> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 const colLetters: ReadonlyArray<string> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
@@ -17,23 +17,24 @@ export class Board {
 		this.generateBoard()
 	}
 
-	public reset(cells: Array<CellStatus> | undefined = undefined): void {
-		this.container.style.opacity = '100%'
+	public reset(cells?: ReadonlyArray<CellStatus>): void {
+		this.setOpacity(100)
 
-		if (cells === undefined)
-			for (let i = 0; i < 100; ++i)
-				this.cells[i].setAttribute('data-status', 'none')
-		else {
-			for (let i = 0; i < 100; ++i) {
-				this.cells[i].setAttribute('data-status', cells[i])
-				console.log(this.cells[i].getAttribute('data-status'))
-			}
+		if (!cells) {
+			for (let i = 0; i < 100; ++i) this.cells[i].setAttribute('data-status', 'none')
+		} else {
+			for (let i = 0; i < 100; ++i) this.cells[i].setAttribute('data-status', cells[i])
 		}
+	}
+
+	public setOpacity = (op: number): void => {
+		this.container.style.opacity = `${op}%`
 	}
 
 	public hide = (): void => {
 		this.container.style.display = 'none'
 	}
+
 	public show = (): void => {
 		this.container.style.display = 'block'
 	}
@@ -44,7 +45,7 @@ export class Board {
 		return this.cells[idx]
 	}
 
-	protected onCellClick(_idx: number): void { }
+	protected onCellClick(_idx: number): void {}
 
 	private generateBoard(): void {
 		this.element.replaceChildren()

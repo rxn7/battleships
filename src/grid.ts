@@ -1,18 +1,16 @@
 import assert from 'assert'
-import { ShipRotation, shipSizes } from '../static/src/ship'
+import {ShipRotation, shipSizes} from '../static/src/ship'
 
 export class GridCell {
-	constructor(public isHit: boolean = false, public isShip: boolean = false) { }
+	constructor(public isHit: boolean = false, public isShip: boolean = false) {}
 
 	public toString(): string {
 		if (this.isShip) {
-			if (this.isHit)
-				return 'X'
+			if (this.isHit) return 'X'
 			return 'S'
 		}
 
-		if (this.isHit)
-			return '∘'
+		if (this.isHit) return '∘'
 
 		return '#'
 	}
@@ -35,10 +33,9 @@ export class Grid {
 	}
 
 	public toString(): string {
-		let output: string = ""
+		let output: string = ''
 		for (let i = 0; i < 100; ++i) {
-			if (i !== 0 && i % 10 === 0)
-				output += '\n'
+			if (i !== 0 && i % 10 === 0) output += '\n'
 
 			output += this.cells[i].toString()
 		}
@@ -47,8 +44,8 @@ export class Grid {
 	}
 
 	public getCellAt(x: number, y: number): GridCell {
-		assert(x >= 0 && y <= 99);
-		return this.cells[y * 10 + x];
+		assert(x >= 0 && y <= 99)
+		return this.cells[y * 10 + x]
 	}
 
 	public cellHasAnyNeighbours(x: number, y: number): boolean {
@@ -59,18 +56,22 @@ export class Grid {
 				const tx: number = x + xo
 				const ty: number = y + yo
 
-				if (tx < 0 || tx > 9 || ty < 0 || ty > 9)
-					continue
+				if (tx < 0 || tx > 9 || ty < 0 || ty > 9) continue
 
-				if (this.getCellAt(tx, ty).isShip)
-					return true
+				if (this.getCellAt(tx, ty).isShip) return true
 			}
 		}
 
 		return false
 	}
 
-	private tryPlaceShip(size: number, pivotX: number, pivotY: number, rotation: ShipRotation, modifyCells: boolean = true): boolean {
+	private tryPlaceShip(
+		size: number,
+		pivotX: number,
+		pivotY: number,
+		rotation: ShipRotation,
+		modifyCells: boolean = true
+	): boolean {
 		switch (rotation) {
 			case ShipRotation.Horizontal:
 				if (pivotX + size > 9) return false
@@ -85,7 +86,7 @@ export class Grid {
 		let pointY: number = pivotY
 
 		const iteratePoint = (): [GridCell, boolean] => {
-			let v: number;
+			let v: number
 			switch (rotation) {
 				case ShipRotation.Vertical:
 					v = pointY++
@@ -97,14 +98,13 @@ export class Grid {
 			}
 
 			const cell: GridCell = this.getCellAt(pointX, pointY)
-			return [cell, (v >= 0 && v <= 9 && !cell.isShip && !this.cellHasAnyNeighbours(pointX, pointY))]
+			return [cell, v >= 0 && v <= 9 && !cell.isShip && !this.cellHasAnyNeighbours(pointX, pointY)]
 		}
 
 		for (let i = 0; i < size; ++i) {
 			const [cell, canBePlaced] = iteratePoint()
 
-			if (!canBePlaced)
-				return false
+			if (!canBePlaced) return false
 		}
 
 		pointX = pivotX
@@ -115,6 +115,6 @@ export class Grid {
 			cell.isShip = true
 		}
 
-		return true;
+		return true
 	}
 }

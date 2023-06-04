@@ -17,6 +17,6 @@
     "build": "bun build --minify --outdir=build src/index.ts",
     "watch": "bun run --watch src/index.ts",
     "watch-static": "tsc --watch --project ./static",
-    "format": "prettier --write **/*.ts"
+    "format": "prettier --write src/*.ts static/src/*.ts"
   }
 }

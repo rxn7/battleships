@@ -1,14 +1,14 @@
 import assert from 'assert'
-import { Player } from './player'
-import { ServerFireMessage, ServerRoomStatusChangedMessage } from '../static/src/messages'
-import { RoomStatus } from '../static/src/roomStatus'
-import { GridCell } from './grid'
-import { CellStatus } from '../static/src/cellStatus'
+import {Player} from './player'
+import {ServerFireMessage, ServerRoomStatusChangedMessage} from '../static/src/messages'
+import {RoomStatus} from '../static/src/roomStatus'
+import {GridCell} from './grid'
+import {CellStatus} from '../static/src/cellStatus'
 
 export default class Room {
 	public players: Array<Player>
 	private status: RoomStatus
-	private turnPlayerUuid: string
+	public turnPlayerUuid: string
 
 	constructor(public readonly id: number) {
 		this.status = RoomStatus.WaitingForPlayers
@@ -22,7 +22,7 @@ export default class Room {
 	public changeStatus(status: RoomStatus): void {
 		this.status = status
 
-		const message: string = JSON.stringify(new ServerRoomStatusChangedMessage(status))
+		const message: string = JSON.stringify(new ServerRoomStatusChangedMessage(status, this.turnPlayerUuid))
 		for (const player of this.players) player.socket.send(message)
 	}
 
@@ -34,11 +34,11 @@ export default class Room {
 
 	public addPlayer(player: Player): void {
 		assert(!this.isFull())
+
 		this.players.push(player)
+		this.turnPlayerUuid = player.uuid
 
 		if (this.players.length == 2) this.changeStatus(RoomStatus.Playing)
-
-		this.turnPlayerUuid = player.uuid
 	}
 
 	public fire(playerUuid: string, cellIdx: number): void {
@@ -49,7 +49,7 @@ export default class Room {
 		const target: Player = this.players.find((p) => p.uuid != playerUuid) as Player
 		assert(target !== undefined, 'Cannot find fire target')
 
-		const cell: GridCell = target.grid.cells[cellIdx];
+		const cell: GridCell = target.grid.cells[cellIdx]
 		assert(!cell.isHit, 'Cell is already hit')
 
 		cell.isHit = true
