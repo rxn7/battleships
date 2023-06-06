@@ -98,6 +98,9 @@ export namespace Game {
 
 				switch (msg.changes[0][1]) {
 					case 'sunk':
+						Audio.playSound(Audio.Sound.Explosion)
+						break
+
 					case 'hit':
 						Audio.playSound(Audio.Sound.Hit)
 						break
