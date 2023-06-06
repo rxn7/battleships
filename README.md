@@ -21,5 +21,4 @@ bun run watch-static
 ```
 
 # To do
-* state machine 
-* ships
+* Placing ships by hand
