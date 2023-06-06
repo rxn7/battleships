@@ -1,9 +1,9 @@
 import assert from 'assert'
-import { Player } from './player'
-import { ServerFireMessage, ServerRoomStatusChangedMessage } from '../static/src/messages'
-import { RoomStatus } from '../static/src/roomStatus'
-import { CellStatus } from '../static/src/cellStatus'
-import { GridCell } from './gridCell'
+import {Player} from './player'
+import {ServerFireMessage, ServerRoomStatusChangedMessage} from '../static/src/messages'
+import {RoomStatus} from '../static/src/roomStatus'
+import {CellStatus} from '../static/src/cellStatus'
+import {GridCell} from './gridCell'
 
 export default class Room {
 	public players: Array<Player>
@@ -44,10 +44,8 @@ export default class Room {
 	private endGame(winner: string): void {
 		this.hasEnded = true
 		for (const player of this.players) {
-			if (player.uuid === winner)
-				player.socket.close(1000, `You have won!`)
-			else
-				player.socket.close(1000, `You have lost!`)
+			if (player.uuid === winner) player.socket.close(1000, `You have won!`)
+			else player.socket.close(1000, `You have lost!`)
 		}
 		this.players = []
 	}
@@ -91,9 +89,9 @@ export default class Room {
 
 		for (const player of this.players) player.socket.send(message)
 
-		this.players.forEach(p => {
-			if (p.grid.ships.every(s => s.isSunk())) {
-				const winner: Player | undefined = this.players.find(_p => _p.uuid !== p.uuid)
+		this.players.forEach((p) => {
+			if (p.grid.ships.every((s) => s.isSunk())) {
+				const winner: Player | undefined = this.players.find((_p) => _p.uuid !== p.uuid)
 				this.endGame(winner?.uuid || '?')
 			}
 		})

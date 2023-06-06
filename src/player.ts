@@ -1,6 +1,6 @@
-import { IWebSocketData } from 'baojs'
-import { ServerWebSocket } from 'bun'
-import { Grid } from './grid'
+import {IWebSocketData} from 'baojs'
+import {ServerWebSocket} from 'bun'
+import {Grid} from './grid'
 
 export class Player {
 	public grid: Grid = new Grid()

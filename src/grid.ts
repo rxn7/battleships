@@ -1,6 +1,6 @@
-import { ShipRotation, shipSizes } from '../static/src/ship'
-import { Point, copyPoint, idxFromPoint } from '../static/src/point'
-import { GridCell } from './gridCell'
+import {ShipRotation, shipSizes} from '../static/src/ship'
+import {Point, copyPoint, idxFromPoint} from '../static/src/point'
+import {GridCell} from './gridCell'
 
 export class Ship {
 	public cells: Array<GridCell> = []
@@ -12,13 +12,12 @@ export class Grid {
 	public ships: Array<Ship> = []
 
 	constructor() {
-		for (let i = 0; i < 100; ++i)
-			this.cells.push(new GridCell(this, i))
+		for (let i = 0; i < 100; ++i) this.cells.push(new GridCell(this, i))
 
 		for (const size of shipSizes) {
 			let ship: Ship | undefined = undefined
 			do {
-				const point: Point = { x: Math.floor(Math.random() * 9), y: Math.floor(Math.random() * 9) }
+				const point: Point = {x: Math.floor(Math.random() * 9), y: Math.floor(Math.random() * 9)}
 				const rotation: number = Math.random() > 0.5 ? ShipRotation.Vertical : ShipRotation.Horizontal
 				ship = this.tryPlaceShip(size, point, rotation)
 			} while (ship === undefined)
@@ -40,11 +39,7 @@ export class Grid {
 
 	public getCellAt = (point: Point): GridCell => this.cells[idxFromPoint(point)]
 
-	private tryPlaceShip(
-		size: number,
-		pivot: Point,
-		rotation: ShipRotation
-	): Ship | undefined {
+	private tryPlaceShip(size: number, pivot: Point, rotation: ShipRotation): Ship | undefined {
 		switch (rotation) {
 			case ShipRotation.Horizontal:
 				if (pivot.x + size > 9) return undefined

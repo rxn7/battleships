@@ -1,4 +1,4 @@
-import { RoomStatus } from './roomStatus'
+import {RoomStatus} from './roomStatus'
 
 export type GameData = {
 	players: Array<string>

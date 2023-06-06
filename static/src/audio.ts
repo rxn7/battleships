@@ -2,7 +2,7 @@ export namespace Audio {
 	export enum Sound {
 		Miss,
 		Hit,
-		Explosion
+		Explosion,
 	}
 
 	const sounds: Map<Sound, HTMLAudioElement> = new Map<Sound, HTMLAudioElement>([
@@ -21,7 +21,9 @@ export namespace Audio {
 
 	export function playSound(sound: Sound) {
 		const audio: HTMLAudioElement = sounds.get(sound)?.cloneNode() as HTMLAudioElement
-		audio.addEventListener('ended', () => { audio.srcObject = null })
+		audio.addEventListener('ended', () => {
+			audio.srcObject = null
+		})
 		audio.play()
 	}
 }

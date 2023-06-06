@@ -1,11 +1,11 @@
-import Bao, { Context, IWebSocketData, WebSocketContext } from 'baojs'
+import Bao, {Context, IWebSocketData, WebSocketContext} from 'baojs'
 import Room from './room'
-import { ServerWebSocket } from 'bun'
-import { randomUUID } from 'crypto'
+import {ServerWebSocket} from 'bun'
+import {randomUUID} from 'crypto'
 import assert from 'assert'
-import { ServerHandshakeMessage, ServerPlayerJoinedMessage, Message, MessageType } from '../static/src/messages'
-import { Player } from './player'
-import { RoomStatus } from '../static/src/roomStatus'
+import {ServerHandshakeMessage, ServerPlayerJoinedMessage, Message, MessageType} from '../static/src/messages'
+import {Player} from './player'
+import {RoomStatus} from '../static/src/roomStatus'
 
 export default class Game {
 	private rooms: Map<number, Room> = new Map<number, Room>()
@@ -15,7 +15,7 @@ export default class Game {
 	public setupRoutes(app: Bao): void {
 		app.get('/api/room/create', (c: Context) => {
 			const room: Room = this.createRoom()
-			return c.sendJson({ room: { id: room.id } })
+			return c.sendJson({room: {id: room.id}})
 		})
 
 		const getRoomFromCtx = (ctx: WebSocketContext): [string, Room | undefined] => {
@@ -30,11 +30,11 @@ export default class Game {
 
 				if (!room) {
 					console.log(`User tried to join room that doesn't exist: ${roomIdStr}`)
-					return ctx.sendText(`Room ${roomIdStr} doesn't exist`, { status: 404 }).forceSend()
+					return ctx.sendText(`Room ${roomIdStr} doesn't exist`, {status: 404}).forceSend()
 				}
 				if (room.isFull()) {
 					console.log(`User tried to join room that is full: ${roomIdStr}`)
-					return ctx.sendText(`Room ${roomIdStr} is full`, { status: 403 }).forceSend()
+					return ctx.sendText(`Room ${roomIdStr} is full`, {status: 403}).forceSend()
 				}
 
 				return ctx
@@ -52,8 +52,8 @@ export default class Game {
 				room.addPlayer(newPlayer)
 
 				const shipsCellsIdxs: Array<number> = []
-				newPlayer.grid.ships.forEach(s => {
-					s.cells.forEach(c => {
+				newPlayer.grid.ships.forEach((s) => {
+					s.cells.forEach((c) => {
 						shipsCellsIdxs.push(c.idx)
 					})
 				})
@@ -80,17 +80,20 @@ export default class Game {
 				const [roomIdStr, room] = getRoomFromCtx(ws.data.ctx)
 				console.log(`User '${ws.data.uuid}' (${ws.remoteAddress}) left the room ${roomIdStr}`)
 
-				if (!room)
-					return
+				if (!room) return
 
 				if (!room.hasEnded) {
-					room.players.forEach(p => {
-						if (p.uuid !== ws.data.uuid && p.socket.readyState !== WebSocket.CLOSED && p.socket.readyState !== WebSocket.CLOSING)
+					room.players.forEach((p) => {
+						if (
+							p.uuid !== ws.data.uuid &&
+							p.socket.readyState !== WebSocket.CLOSED &&
+							p.socket.readyState !== WebSocket.CLOSING
+						)
 							p.socket.close(1000, 'Your enemy has disconnected')
 					})
 				}
 
-				room.players = room.players.filter(p => p.uuid !== ws.data.uuid)
+				room.players = room.players.filter((p) => p.uuid !== ws.data.uuid)
 
 				if (room.players.length == 0) {
 					console.log(`Room with id: ${roomIdStr} deleted`)

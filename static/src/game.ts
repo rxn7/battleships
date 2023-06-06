@@ -1,6 +1,6 @@
-import { Board, EnemyBoard } from './board.js'
-import { RoomStatus } from './roomStatus.js'
-import { GameData } from './gameData.js'
+import {Board, EnemyBoard} from './board.js'
+import {RoomStatus} from './roomStatus.js'
+import {GameData} from './gameData.js'
 import {
 	Message,
 	MessageType,
@@ -9,9 +9,9 @@ import {
 	ServerPlayerJoinedMessage,
 	ServerRoomStatusChangedMessage,
 } from './messages.js'
-import { Lobby } from './lobby.js'
-import { Global } from './global.js'
-import { Audio } from './audio.js'
+import {Lobby} from './lobby.js'
+import {Global} from './global.js'
+import {Audio} from './audio.js'
 
 export namespace Game {
 	const gameContainer: HTMLDivElement = document.getElementById('game-container') as HTMLDivElement

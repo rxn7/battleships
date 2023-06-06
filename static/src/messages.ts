@@ -1,6 +1,6 @@
-import { CellStatus } from './cellStatus'
-import { GameData } from './gameData.js'
-import { RoomStatus } from './roomStatus.js'
+import {CellStatus} from './cellStatus'
+import {GameData} from './gameData.js'
+import {RoomStatus} from './roomStatus.js'
 
 export enum MessageType {
 	ServerHandshake,
@@ -11,7 +11,7 @@ export enum MessageType {
 }
 
 export class Message {
-	protected constructor(public readonly type: MessageType) { }
+	protected constructor(public readonly type: MessageType) {}
 }
 
 export class ServerHandshakeMessage extends Message {
